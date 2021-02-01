@@ -1,0 +1,660 @@
+2021-01-27 01:34:35,677 INFO    MainThread:11904 [internal.py:wandb_internal():64] W&B internal server running at pid: 11904
+2021-01-27 01:34:35,680 INFO    WriterThread:11904 [datastore.py:open_for_write():77] open: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/run-p2e03idy.wandb
+2021-01-27 01:34:35,681 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: check_version
+2021-01-27 01:34:35,682 DEBUG   SenderThread:11904 [sender.py:send():117] send: header
+2021-01-27 01:34:35,682 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:34:35,682 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: check_version
+2021-01-27 01:34:35,686 DEBUG   Thread-4  :11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): pypi.org:443
+2021-01-27 01:34:35,889 DEBUG   Thread-4  :11904 [connectionpool.py:_make_request():461] https://pypi.org:443 "GET /pypi/wandb/json HTTP/1.1" 200 53088
+2021-01-27 01:34:35,961 DEBUG   SenderThread:11904 [sender.py:send():117] send: run
+2021-01-27 01:34:35,969 DEBUG   SenderThread:11904 [cmd.py:execute():719] Popen(['git', 'cat-file', '--batch-check'], cwd=/disk2/yunhokim/Matterport3DSimulator, universal_newlines=False, shell=None, istream=<valid stream>)
+2021-01-27 01:34:35,986 DEBUG   SenderThread:11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:34:36,235 DEBUG   SenderThread:11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:34:36,245 INFO    SenderThread:11904 [dir_watcher.py:__init__():165] watching files in: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files
+2021-01-27 01:34:36,246 INFO    SenderThread:11904 [sender.py:_start_run_threads():596] run started: p2e03idy with start time 1611678875
+2021-01-27 01:34:36,246 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:34:36,246 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:34:36,250 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: run_start
+2021-01-27 01:34:36,260 DEBUG   HandlerThread:11904 [meta.py:__init__():34] meta init
+2021-01-27 01:34:36,260 DEBUG   HandlerThread:11904 [meta.py:__init__():48] meta init done
+2021-01-27 01:34:36,261 DEBUG   HandlerThread:11904 [meta.py:probe():190] probe
+2021-01-27 01:34:36,282 DEBUG   HandlerThread:11904 [meta.py:_setup_git():180] setup git
+2021-01-27 01:34:36,284 DEBUG   HandlerThread:11904 [cmd.py:execute():719] Popen(['git', 'cat-file', '--batch-check'], cwd=/disk2/yunhokim/Matterport3DSimulator, universal_newlines=False, shell=None, istream=<valid stream>)
+2021-01-27 01:34:36,294 DEBUG   HandlerThread:11904 [cmd.py:execute():719] Popen(['git', 'rev-parse', '--show-toplevel'], cwd=/disk2/yunhokim/Matterport3DSimulator, universal_newlines=False, shell=None, istream=None)
+2021-01-27 01:34:36,302 DEBUG   HandlerThread:11904 [meta.py:_setup_git():187] setup git done
+2021-01-27 01:34:36,302 DEBUG   HandlerThread:11904 [meta.py:_save_pip():52] save pip
+2021-01-27 01:34:36,303 DEBUG   HandlerThread:11904 [meta.py:_save_pip():66] save pip done
+2021-01-27 01:34:36,303 DEBUG   HandlerThread:11904 [meta.py:probe():231] probe done
+2021-01-27 01:34:36,310 DEBUG   SenderThread:11904 [sender.py:send():117] send: files
+2021-01-27 01:34:36,310 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-metadata.json with policy now
+2021-01-27 01:34:36,317 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: status
+2021-01-27 01:34:36,318 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:34:36,319 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: status
+2021-01-27 01:34:36,319 DEBUG   Thread-11 :11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:34:36,324 DEBUG   SenderThread:11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:34:36,524 DEBUG   Thread-11 :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:34:36,526 DEBUG   SenderThread:11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:34:36,537 DEBUG   Thread-11 :11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): storage.googleapis.com:443
+2021-01-27 01:34:36,945 DEBUG   Thread-11 :11904 [connectionpool.py:_make_request():461] https://storage.googleapis.com:443 "PUT /wandb-production.appspot.com/awesomericky/VLN/p2e03idy/wandb-metadata.json?Expires=1611765276&GoogleAccessId=wandb-production%40appspot.gserviceaccount.com&Signature=AWs5BuFuQ75YWtQ7tXI180faWruksF%2Buj27uZMRIoS%2Byk70VEDD8Lk52mkhmHaOTG8yb3%2BfzmVxQeYwvWCIsMfPWEp1ZexsD%2BJDtljFOOzgLgDnf44YQFek4HbjURUzOtm9R2k%2BupAWCqil4R3WCWVP3ZID1fPoxbHUqzhDP8HMfwMcV1ldgM2mXSMTxfZkUN2lnGExb%2B6X7DouULRvf6L1zFAWNdsThsIwQZU6f%2FPmfVJkWXIOC60t3tT8ynpLozj4K8xgSL2MyiEy9veVIxGPozstJdjtGamUmFtF6RdC1jzZu%2FRhcLRym8bLqG5szjxfX6CANQ4mrlMwzUKPlbQ%3D%3D HTTP/1.1" 200 0
+2021-01-27 01:34:36,948 INFO    Thread-11 :11904 [upload_job.py:push():131] Uploaded file /tmp/tmps78rbcciwandb/3hk03js0-wandb-metadata.json
+2021-01-27 01:34:37,249 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_created():213] file/dir created: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/output.log
+2021-01-27 01:34:37,250 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_created():213] file/dir created: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/wandb-summary.json
+2021-01-27 01:34:37,250 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_created():213] file/dir created: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/wandb-metadata.json
+2021-01-27 01:34:37,250 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_created():213] file/dir created: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/requirements.txt
+2021-01-27 01:34:38,246 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/output.log
+2021-01-27 01:34:40,192 DEBUG   Thread-5  :11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:34:40,439 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:34:41,571 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:34:43,774 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:34:47,748 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:34:47,960 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:34:51,563 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: status
+2021-01-27 01:34:51,563 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:34:51,563 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: status
+2021-01-27 01:34:51,569 DEBUG   SenderThread:11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:34:51,771 DEBUG   SenderThread:11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:34:53,972 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:34:54,185 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:35:00,242 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:35:00,463 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:35:06,436 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:35:06,639 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:35:06,778 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: status
+2021-01-27 01:35:06,778 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:35:06,778 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: status
+2021-01-27 01:35:06,784 DEBUG   SenderThread:11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:35:06,986 DEBUG   SenderThread:11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:35:12,841 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:35:13,058 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:35:18,936 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:35:19,152 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:35:21,996 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: status
+2021-01-27 01:35:21,997 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:35:21,997 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: status
+2021-01-27 01:35:22,003 DEBUG   SenderThread:11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:35:22,210 DEBUG   SenderThread:11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:35:25,083 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:35:25,295 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:35:26,273 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/output.log
+2021-01-27 01:35:28,456 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:35:31,181 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:35:31,390 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:35:36,280 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/output.log
+2021-01-27 01:35:37,221 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: status
+2021-01-27 01:35:37,222 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:35:37,222 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: status
+2021-01-27 01:35:37,229 DEBUG   SenderThread:11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:35:37,439 DEBUG   SenderThread:11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:35:37,443 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:35:43,439 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:35:43,646 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:35:49,682 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:35:52,458 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: status
+2021-01-27 01:35:52,458 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:35:52,458 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: status
+2021-01-27 01:35:52,463 DEBUG   SenderThread:11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:35:52,667 DEBUG   SenderThread:11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:35:55,989 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:35:56,218 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:36:02,212 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:36:07,688 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: status
+2021-01-27 01:36:07,688 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:36:07,689 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: status
+2021-01-27 01:36:07,693 DEBUG   SenderThread:11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:36:07,909 DEBUG   SenderThread:11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:36:08,411 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:36:08,616 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:36:14,570 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:36:20,746 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:36:20,960 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:36:22,939 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: status
+2021-01-27 01:36:22,940 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:36:22,940 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: status
+2021-01-27 01:36:22,944 DEBUG   SenderThread:11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:36:23,153 DEBUG   SenderThread:11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:36:23,303 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/output.log
+2021-01-27 01:36:26,889 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:36:32,032 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:36:32,307 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/output.log
+2021-01-27 01:36:33,088 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:36:36,309 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/output.log
+2021-01-27 01:36:38,188 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: status
+2021-01-27 01:36:38,189 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:36:38,189 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: status
+2021-01-27 01:36:38,193 DEBUG   SenderThread:11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:36:38,401 DEBUG   SenderThread:11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:36:39,290 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:36:45,574 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:36:45,779 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:36:51,962 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:36:53,463 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: status
+2021-01-27 01:36:53,463 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:36:53,463 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: status
+2021-01-27 01:36:53,468 DEBUG   SenderThread:11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:36:53,668 DEBUG   SenderThread:11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:36:58,216 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:36:58,464 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:37:04,322 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:37:08,688 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: status
+2021-01-27 01:37:08,688 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:37:08,689 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: status
+2021-01-27 01:37:08,694 DEBUG   SenderThread:11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:37:08,887 DEBUG   SenderThread:11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:37:10,602 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:37:10,815 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:37:17,016 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:37:22,334 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/output.log
+2021-01-27 01:37:22,478 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:37:23,335 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/output.log
+2021-01-27 01:37:23,371 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:37:23,901 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: status
+2021-01-27 01:37:23,901 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:37:23,901 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: status
+2021-01-27 01:37:23,908 DEBUG   SenderThread:11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:37:24,131 DEBUG   SenderThread:11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:37:29,630 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:37:30,338 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/output.log
+2021-01-27 01:37:35,625 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:37:35,860 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:37:39,137 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: status
+2021-01-27 01:37:39,137 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:37:39,137 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: status
+2021-01-27 01:37:39,142 DEBUG   SenderThread:11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:37:39,344 DEBUG   SenderThread:11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:37:41,902 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:37:48,083 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:37:48,312 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:37:54,352 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: status
+2021-01-27 01:37:54,353 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:37:54,353 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: status
+2021-01-27 01:37:54,358 DEBUG   SenderThread:11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:37:54,568 DEBUG   SenderThread:11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:37:54,572 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:38:00,718 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:38:00,944 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:38:06,934 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:38:09,583 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: status
+2021-01-27 01:38:09,583 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:38:09,583 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: status
+2021-01-27 01:38:09,588 DEBUG   SenderThread:11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:38:09,807 DEBUG   SenderThread:11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:38:13,097 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:38:13,324 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:38:13,639 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:38:13,640 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:38:13,641 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:38:14,357 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/wandb-summary.json
+2021-01-27 01:38:16,111 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:38:16,111 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:38:16,112 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:38:16,358 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/wandb-summary.json
+2021-01-27 01:38:18,544 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:38:18,544 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:38:18,545 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:38:18,547 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:38:18,547 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:38:18,552 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:38:18,552 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:38:18,552 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:38:18,553 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:38:18,553 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:38:18,554 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:38:18,554 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:38:18,555 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:38:18,555 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:38:18,556 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:38:19,206 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:38:19,360 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/wandb-summary.json
+2021-01-27 01:38:23,797 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:38:23,798 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:38:23,803 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:38:24,054 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:38:24,362 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/wandb-summary.json
+2021-01-27 01:38:24,811 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: status
+2021-01-27 01:38:24,811 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:38:24,811 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: status
+2021-01-27 01:38:24,814 DEBUG   SenderThread:11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:38:25,041 DEBUG   SenderThread:11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:38:25,400 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:38:29,064 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:38:29,065 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:38:29,071 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:38:29,071 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:38:29,072 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:38:29,072 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:38:29,073 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:38:29,073 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:38:29,073 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:38:29,074 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:38:29,074 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:38:29,075 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:38:29,075 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:38:29,075 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:38:29,076 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:38:29,366 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/output.log
+2021-01-27 01:38:29,366 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/wandb-summary.json
+2021-01-27 01:38:31,511 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:38:37,459 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:38:37,794 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:38:40,048 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: status
+2021-01-27 01:38:40,048 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:38:40,049 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: status
+2021-01-27 01:38:40,054 DEBUG   SenderThread:11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:38:40,265 DEBUG   SenderThread:11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:38:43,654 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:38:49,759 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:38:49,975 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:38:55,274 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: status
+2021-01-27 01:38:55,275 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:38:55,275 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: status
+2021-01-27 01:38:55,279 DEBUG   SenderThread:11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:38:55,486 DEBUG   SenderThread:11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:38:55,790 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:39:01,758 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:39:01,968 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:39:07,859 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:39:10,392 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:39:10,393 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:39:10,394 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:39:10,496 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: status
+2021-01-27 01:39:10,496 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:39:10,497 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: status
+2021-01-27 01:39:10,502 DEBUG   SenderThread:11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:39:10,712 DEBUG   SenderThread:11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:39:11,385 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/wandb-summary.json
+2021-01-27 01:39:13,068 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:39:13,068 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:39:13,072 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:39:13,288 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:39:13,386 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/wandb-summary.json
+2021-01-27 01:39:14,110 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:39:16,210 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:39:16,210 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:39:16,211 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:39:16,215 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:39:16,217 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:39:16,220 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:39:16,220 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:39:16,220 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:39:16,221 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:39:16,221 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:39:16,221 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:39:16,222 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:39:16,223 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:39:16,223 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:39:16,223 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:39:16,388 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/wandb-summary.json
+2021-01-27 01:39:20,201 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:39:22,567 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:39:22,568 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:39:22,569 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:39:23,392 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/wandb-summary.json
+2021-01-27 01:39:25,722 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: status
+2021-01-27 01:39:25,722 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:39:25,723 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: status
+2021-01-27 01:39:25,727 DEBUG   SenderThread:11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:39:25,923 DEBUG   SenderThread:11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:39:26,298 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:39:26,527 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:39:28,608 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:39:28,610 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:39:28,616 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:39:28,616 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:39:28,616 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:39:28,617 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:39:28,617 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:39:28,617 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:39:28,618 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:39:28,619 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:39:28,619 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:39:28,620 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:39:28,620 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:39:28,620 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:39:28,621 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:39:29,395 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/output.log
+2021-01-27 01:39:29,396 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/wandb-summary.json
+2021-01-27 01:39:32,333 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:39:38,404 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:39:40,937 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: status
+2021-01-27 01:39:40,938 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:39:40,938 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: status
+2021-01-27 01:39:40,943 DEBUG   SenderThread:11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:39:41,148 DEBUG   SenderThread:11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:39:44,590 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:39:50,606 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:39:56,160 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: status
+2021-01-27 01:39:56,161 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:39:56,161 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: status
+2021-01-27 01:39:56,170 DEBUG   SenderThread:11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:39:56,392 DEBUG   SenderThread:11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:39:56,669 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:39:56,899 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:40:02,716 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:40:08,800 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:40:09,963 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:40:09,963 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:40:09,964 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:40:10,415 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/wandb-summary.json
+2021-01-27 01:40:11,398 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: status
+2021-01-27 01:40:11,398 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:40:11,399 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: status
+2021-01-27 01:40:11,405 DEBUG   SenderThread:11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:40:11,622 DEBUG   SenderThread:11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:40:12,558 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:40:12,558 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:40:12,558 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:40:13,417 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/wandb-summary.json
+2021-01-27 01:40:14,805 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:40:14,980 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:40:14,980 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:40:14,980 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:40:14,985 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:40:14,985 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:40:14,992 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:40:14,992 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:40:14,992 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:40:15,002 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:40:15,002 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:40:15,002 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:40:15,002 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:40:15,003 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:40:15,003 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:40:15,003 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:40:15,418 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/wandb-summary.json
+2021-01-27 01:40:19,964 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:40:19,965 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:40:19,965 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:40:20,420 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/wandb-summary.json
+2021-01-27 01:40:20,752 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:40:25,700 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:40:25,701 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:40:25,701 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:40:25,703 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:40:25,706 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:40:25,709 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:40:25,709 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:40:25,709 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:40:25,710 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:40:25,710 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:40:25,711 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:40:25,711 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:40:25,712 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:40:25,712 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:40:25,713 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:40:26,423 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/output.log
+2021-01-27 01:40:26,423 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/wandb-summary.json
+2021-01-27 01:40:26,627 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: status
+2021-01-27 01:40:26,627 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:40:26,628 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: status
+2021-01-27 01:40:26,631 DEBUG   SenderThread:11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:40:26,848 DEBUG   SenderThread:11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:40:26,851 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:40:27,085 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:40:33,014 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:40:39,311 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:40:41,855 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: status
+2021-01-27 01:40:41,855 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:40:41,855 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: status
+2021-01-27 01:40:41,859 DEBUG   SenderThread:11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:40:42,061 DEBUG   SenderThread:11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:40:45,491 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:40:51,760 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:40:57,070 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: status
+2021-01-27 01:40:57,071 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:40:57,072 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: status
+2021-01-27 01:40:57,078 DEBUG   SenderThread:11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:40:57,288 DEBUG   SenderThread:11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:40:58,036 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:40:58,259 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:41:04,336 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:41:09,263 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:41:09,264 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:41:09,264 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:41:09,445 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/wandb-summary.json
+2021-01-27 01:41:10,466 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:41:11,889 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:41:11,889 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:41:11,890 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:41:12,298 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: status
+2021-01-27 01:41:12,298 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:41:12,298 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: status
+2021-01-27 01:41:12,305 DEBUG   SenderThread:11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:41:12,447 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/wandb-summary.json
+2021-01-27 01:41:12,514 DEBUG   SenderThread:11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:41:14,343 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:41:14,343 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:41:14,344 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:41:14,347 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:41:14,348 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:41:14,350 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:41:14,351 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:41:14,351 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:41:14,352 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:41:14,352 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:41:14,352 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:41:14,353 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:41:14,353 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:41:14,354 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:41:14,354 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:41:14,447 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/wandb-summary.json
+2021-01-27 01:41:16,600 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:41:19,475 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:41:19,476 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:41:19,476 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:41:20,450 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/wandb-summary.json
+2021-01-27 01:41:22,885 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:41:24,478 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:41:24,478 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:41:24,480 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:41:24,480 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:41:24,483 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:41:24,489 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:41:24,489 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:41:24,489 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:41:24,493 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:41:24,493 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:41:24,493 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:41:24,497 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:41:24,498 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:41:24,498 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:41:24,499 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:41:25,453 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/output.log
+2021-01-27 01:41:25,453 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/wandb-summary.json
+2021-01-27 01:41:27,525 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: status
+2021-01-27 01:41:27,526 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:41:27,526 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: status
+2021-01-27 01:41:27,531 DEBUG   SenderThread:11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:41:27,747 DEBUG   SenderThread:11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:41:29,125 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:41:30,196 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:41:35,256 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:41:41,322 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:41:42,751 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: status
+2021-01-27 01:41:42,752 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:41:42,752 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: status
+2021-01-27 01:41:42,754 DEBUG   SenderThread:11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:41:42,979 DEBUG   SenderThread:11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:41:47,422 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:41:53,452 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:41:57,986 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: status
+2021-01-27 01:41:57,986 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:41:57,987 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: status
+2021-01-27 01:41:57,991 DEBUG   SenderThread:11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:41:58,207 DEBUG   SenderThread:11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:41:59,620 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:41:59,855 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:42:05,964 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:42:06,275 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:42:06,275 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:42:06,276 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:42:06,471 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/wandb-summary.json
+2021-01-27 01:42:08,925 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:42:08,926 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:42:08,927 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:42:09,473 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/wandb-summary.json
+2021-01-27 01:42:11,367 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:42:11,367 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:42:11,368 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:42:11,371 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:42:11,372 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:42:11,376 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:42:11,376 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:42:11,377 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:42:11,377 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:42:11,378 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:42:11,378 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:42:11,379 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:42:11,379 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:42:11,379 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:42:11,380 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:42:11,474 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/wandb-summary.json
+2021-01-27 01:42:12,196 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:42:13,217 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: status
+2021-01-27 01:42:13,218 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:42:13,218 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: status
+2021-01-27 01:42:13,222 DEBUG   SenderThread:11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:42:13,426 DEBUG   SenderThread:11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:42:16,481 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:42:16,482 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:42:16,483 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:42:17,478 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/wandb-summary.json
+2021-01-27 01:42:18,368 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:42:21,564 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:42:21,564 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:42:21,568 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:42:21,568 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:42:21,569 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:42:21,569 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:42:21,570 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:42:21,570 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:42:21,571 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:42:21,571 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:42:21,571 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:42:21,572 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:42:21,572 DEBUG   SenderThread:11904 [sender.py:send():117] send: history
+2021-01-27 01:42:21,573 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:42:21,573 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:42:22,480 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/output.log
+2021-01-27 01:42:22,480 INFO    Thread-8  :11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/wandb-summary.json
+2021-01-27 01:42:24,354 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:42:28,434 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: status
+2021-01-27 01:42:28,435 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:42:28,435 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: status
+2021-01-27 01:42:28,438 DEBUG   SenderThread:11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:42:28,655 DEBUG   SenderThread:11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:42:30,489 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:42:30,720 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:42:34,725 WARNING MainThread:11904 [internal.py:wandb_internal():118] Internal process interrupt: 1
+2021-01-27 01:42:34,731 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: poll_exit
+2021-01-27 01:42:34,732 DEBUG   SenderThread:11904 [sender.py:send():117] send: telemetry
+2021-01-27 01:42:34,746 DEBUG   SenderThread:11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:42:34,988 DEBUG   SenderThread:11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:42:34,996 DEBUG   SenderThread:11904 [sender.py:send():117] send: exit
+2021-01-27 01:42:34,996 INFO    SenderThread:11904 [sender.py:send_exit():195] handling exit code: 255
+2021-01-27 01:42:34,996 INFO    SenderThread:11904 [sender.py:send_exit():203] send defer
+2021-01-27 01:42:34,996 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:42:34,997 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: poll_exit
+2021-01-27 01:42:34,997 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: defer
+2021-01-27 01:42:34,998 INFO    HandlerThread:11904 [handler.py:handle_request_defer():69] handle defer: 0
+2021-01-27 01:42:34,998 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:42:34,998 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: defer
+2021-01-27 01:42:34,998 INFO    SenderThread:11904 [sender.py:send_request_defer():212] handle sender defer: 0
+2021-01-27 01:42:34,998 INFO    SenderThread:11904 [sender.py:send_request_defer():248] send defer: 1
+2021-01-27 01:42:34,999 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: defer
+2021-01-27 01:42:34,999 INFO    HandlerThread:11904 [handler.py:handle_request_defer():69] handle defer: 1
+2021-01-27 01:42:35,417 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:42:35,417 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: defer
+2021-01-27 01:42:35,417 INFO    SenderThread:11904 [sender.py:send_request_defer():212] handle sender defer: 1
+2021-01-27 01:42:35,418 INFO    SenderThread:11904 [sender.py:send_request_defer():248] send defer: 2
+2021-01-27 01:42:35,418 DEBUG   SenderThread:11904 [sender.py:send():117] send: stats
+2021-01-27 01:42:35,420 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: defer
+2021-01-27 01:42:35,420 INFO    HandlerThread:11904 [handler.py:handle_request_defer():69] handle defer: 2
+2021-01-27 01:42:35,420 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:42:35,420 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: defer
+2021-01-27 01:42:35,420 INFO    SenderThread:11904 [sender.py:send_request_defer():212] handle sender defer: 2
+2021-01-27 01:42:35,421 INFO    SenderThread:11904 [sender.py:send_request_defer():248] send defer: 3
+2021-01-27 01:42:35,421 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: defer
+2021-01-27 01:42:35,421 INFO    HandlerThread:11904 [handler.py:handle_request_defer():69] handle defer: 3
+2021-01-27 01:42:35,422 DEBUG   SenderThread:11904 [sender.py:send():117] send: summary
+2021-01-27 01:42:35,423 INFO    SenderThread:11904 [sender.py:_save_file():682] saving file wandb-summary.json with policy end
+2021-01-27 01:42:35,423 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:42:35,423 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: defer
+2021-01-27 01:42:35,423 INFO    SenderThread:11904 [sender.py:send_request_defer():212] handle sender defer: 3
+2021-01-27 01:42:35,423 INFO    SenderThread:11904 [sender.py:send_request_defer():248] send defer: 4
+2021-01-27 01:42:35,424 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: defer
+2021-01-27 01:42:35,424 INFO    HandlerThread:11904 [handler.py:handle_request_defer():69] handle defer: 4
+2021-01-27 01:42:35,424 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:42:35,424 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: defer
+2021-01-27 01:42:35,424 INFO    SenderThread:11904 [sender.py:send_request_defer():212] handle sender defer: 4
+2021-01-27 01:42:35,424 INFO    SenderThread:11904 [dir_watcher.py:finish():279] shutting down directory watcher
+2021-01-27 01:42:35,483 INFO    SenderThread:11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/output.log
+2021-01-27 01:42:35,484 INFO    SenderThread:11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/config.yaml
+2021-01-27 01:42:35,484 INFO    SenderThread:11904 [dir_watcher.py:_on_file_modified():226] file/dir modified: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/wandb-summary.json
+2021-01-27 01:42:35,484 INFO    SenderThread:11904 [dir_watcher.py:finish():309] scan: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files
+2021-01-27 01:42:35,484 INFO    SenderThread:11904 [dir_watcher.py:finish():315] scan save: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/requirements.txt requirements.txt
+2021-01-27 01:42:35,484 INFO    SenderThread:11904 [dir_watcher.py:finish():315] scan save: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/config.yaml config.yaml
+2021-01-27 01:42:35,485 INFO    SenderThread:11904 [dir_watcher.py:finish():315] scan save: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/output.log output.log
+2021-01-27 01:42:35,497 DEBUG   Thread-12 :11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:42:35,499 INFO    SenderThread:11904 [dir_watcher.py:finish():315] scan save: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/wandb-metadata.json wandb-metadata.json
+2021-01-27 01:42:35,499 DEBUG   Thread-13 :11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:42:35,499 INFO    SenderThread:11904 [dir_watcher.py:finish():315] scan save: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/wandb-summary.json wandb-summary.json
+2021-01-27 01:42:35,507 DEBUG   Thread-14 :11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:42:35,507 INFO    SenderThread:11904 [sender.py:send_request_defer():248] send defer: 5
+2021-01-27 01:42:35,508 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: defer
+2021-01-27 01:42:35,508 INFO    HandlerThread:11904 [handler.py:handle_request_defer():69] handle defer: 5
+2021-01-27 01:42:35,515 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:42:35,515 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: defer
+2021-01-27 01:42:35,515 INFO    SenderThread:11904 [sender.py:send_request_defer():212] handle sender defer: 5
+2021-01-27 01:42:35,515 INFO    SenderThread:11904 [file_pusher.py:finish():170] shutting down file pusher
+2021-01-27 01:42:35,515 INFO    SenderThread:11904 [sender.py:send_request_defer():248] send defer: 6
+2021-01-27 01:42:35,516 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: defer
+2021-01-27 01:42:35,516 INFO    HandlerThread:11904 [handler.py:handle_request_defer():69] handle defer: 6
+2021-01-27 01:42:35,516 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:42:35,517 DEBUG   Thread-15 :11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): api.wandb.ai:443
+2021-01-27 01:42:35,517 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: defer
+2021-01-27 01:42:35,518 INFO    SenderThread:11904 [sender.py:send_request_defer():212] handle sender defer: 6
+2021-01-27 01:42:35,735 DEBUG   Thread-15 :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:42:35,737 DEBUG   Thread-14 :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:42:35,745 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:42:35,747 DEBUG   Thread-15 :11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): storage.googleapis.com:443
+2021-01-27 01:42:35,747 DEBUG   Thread-13 :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:42:35,749 DEBUG   Thread-12 :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2021-01-27 01:42:35,757 DEBUG   Thread-14 :11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): storage.googleapis.com:443
+2021-01-27 01:42:35,768 DEBUG   Thread-13 :11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): storage.googleapis.com:443
+2021-01-27 01:42:35,775 DEBUG   Thread-12 :11904 [connectionpool.py:_new_conn():975] Starting new HTTPS connection (1): storage.googleapis.com:443
+2021-01-27 01:42:35,951 DEBUG   Thread-5  :11904 [connectionpool.py:_make_request():461] https://api.wandb.ai:443 "POST /files/awesomericky/VLN/p2e03idy/file_stream HTTP/1.1" 200 None
+2021-01-27 01:42:35,955 INFO    SenderThread:11904 [sender.py:send_request_defer():248] send defer: 7
+2021-01-27 01:42:35,955 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: defer
+2021-01-27 01:42:35,956 INFO    HandlerThread:11904 [handler.py:handle_request_defer():69] handle defer: 7
+2021-01-27 01:42:35,956 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:42:35,956 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: defer
+2021-01-27 01:42:35,956 INFO    SenderThread:11904 [sender.py:send_request_defer():212] handle sender defer: 7
+2021-01-27 01:42:35,956 INFO    SenderThread:11904 [sender.py:send_request_defer():248] send defer: 8
+2021-01-27 01:42:35,957 DEBUG   SenderThread:11904 [sender.py:send():117] send: final
+2021-01-27 01:42:35,958 DEBUG   SenderThread:11904 [sender.py:send():117] send: footer
+2021-01-27 01:42:35,958 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: defer
+2021-01-27 01:42:35,958 INFO    HandlerThread:11904 [handler.py:handle_request_defer():69] handle defer: 8
+2021-01-27 01:42:35,958 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:42:35,958 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: defer
+2021-01-27 01:42:35,958 INFO    SenderThread:11904 [sender.py:send_request_defer():212] handle sender defer: 8
+2021-01-27 01:42:36,139 DEBUG   Thread-15 :11904 [connectionpool.py:_make_request():461] https://storage.googleapis.com:443 "PUT /wandb-production.appspot.com/awesomericky/VLN/p2e03idy/wandb-summary.json?Expires=1611765755&GoogleAccessId=wandb-production%40appspot.gserviceaccount.com&Signature=FnJglAkqQGaVyIetuWjz5rdBO2xvDiUkUDCjBr32CiCoxrUCvMZEVCeSD1Wf1wblp6e0%2BiijDrNOi6aObcK1aO9JhI4Ks%2BW6d3JuEx5luOVI%2BQNJ%2FSg%2F6Jw6ugE09JfHNn7vKZY1SOlU4ZZbF0x92LED5lDjI7ImFK6XGINr06kkEvOpXmH%2BIXIrH%2FZPu2qDVpPbIoLNiPv4%2FQR02T5bztF8LgPDtE2HJOHRWiqqqj9fHOMs9Uv1m1XNiE72IcdngGpIlClO%2F2aZdYjiYzKftoWEd7JhkTGdzDlnI4nM4xJBDp0klGdyigvi1jedbhhrEPU5fSVEI1q%2Fm%2BuFjD9MEg%3D%3D HTTP/1.1" 200 0
+2021-01-27 01:42:36,141 INFO    Thread-15 :11904 [upload_job.py:push():131] Uploaded file /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/wandb-summary.json
+2021-01-27 01:42:36,144 DEBUG   Thread-14 :11904 [connectionpool.py:_make_request():461] https://storage.googleapis.com:443 "PUT /wandb-production.appspot.com/awesomericky/VLN/p2e03idy/output.log?Expires=1611765755&GoogleAccessId=wandb-production%40appspot.gserviceaccount.com&Signature=HEC%2Bq0vsrczbf1LKuC3%2BrWdGgSQsZAJH7fEpIDdlvks%2FswKWiANtpfyflhzpxLWVZUUvgdVQjiwXS6yBb9s8CiAIWsxHDg9mkvjdxcpNYKE20O1o23nLy5Su3V5P3kBxHERXaR9L1DZCobgMdQ73EUiAwSJ7BnFhqThSUmGHJfdgI9q0tgirt5pXL33X27P08SqVhDOwR%2FUnRmvZIjPOC6a5MG7JAi%2Bj9ZS%2BfqEwR2HRjLlQSsnowWbWZfPP4jABRgoF2i1fYrnuFDRrTTyoE0954vucoMPokdQRMNazr9uFqjbW9x0LXTP84%2FknZNTGdm0gOJ6C6mfiIV9Fi9zmTg%3D%3D HTTP/1.1" 200 0
+2021-01-27 01:42:36,146 INFO    Thread-14 :11904 [upload_job.py:push():131] Uploaded file /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/output.log
+2021-01-27 01:42:36,162 DEBUG   Thread-13 :11904 [connectionpool.py:_make_request():461] https://storage.googleapis.com:443 "PUT /wandb-production.appspot.com/awesomericky/VLN/p2e03idy/config.yaml?Expires=1611765755&GoogleAccessId=wandb-production%40appspot.gserviceaccount.com&Signature=iFfyt1u50du%2FB356XqgSQoGWS2HCdR0Gau32PcU7sT3GRhUyp7MClvxF2rNUu90DBkG%2FELGQxTbOGdjcj8fzVSW9duntIHNuj6RYVHAHkQR301SDxpHOPlJrQaFChoTc0SYfEwXW4h%2Bg5WNJ5PtF4GUQQXxRanlnjiqOAfYMfdHkfmz2VrPTRS4HtTO39fWxuoUIzUSOs2JEXTjecycN1m24ctc%2FmZS6%2BkjJ7PeEMBLOdCYD15PrTD9xpMpIoRo8bFmPjUCfoDRvhJs3mhqI4f1BnIwT9OD4EsOQXepZ8FwXc2AVCWBvXj3OaSb6tulg7r%2BE1%2BmYwjQFZlfj7jSrVA%3D%3D HTTP/1.1" 200 0
+2021-01-27 01:42:36,164 INFO    Thread-13 :11904 [upload_job.py:push():131] Uploaded file /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/config.yaml
+2021-01-27 01:42:36,195 DEBUG   Thread-12 :11904 [connectionpool.py:_make_request():461] https://storage.googleapis.com:443 "PUT /wandb-production.appspot.com/awesomericky/VLN/p2e03idy/requirements.txt?Expires=1611765755&GoogleAccessId=wandb-production%40appspot.gserviceaccount.com&Signature=fYZubI6hDqYF54y819VNcw%2F7gh%2FZT7uxfeFoREyU6VcJARQ41rCd4Bo3YcEb3gal0XUxl%2FDAJePLWdDFfpnEIA8hMhJnwt9jYMnAxPI0bfY3y6ONO72AYu5mPOzuqqnvOP6%2BIXok7aKXd%2BxZInQR1mPEMv0jIJ6Eqz89e3y4fRyuqulWDBlXooEXUIlOMjLCHxA2Cztko7LR9htDr1XcHe5dgI4mLkeQgHrzxC3CB9vaojw39FV%2BH2wlW2I8chSPnczPcANNsf73vDxjR546TuJKxgsPDaOsyBvDqtzJuzcyH2UVLxg04qVWZqtmkX98JdlhG3dzm3IJkr73iM1fcg%3D%3D HTTP/1.1" 200 0
+2021-01-27 01:42:36,197 INFO    Thread-12 :11904 [upload_job.py:push():131] Uploaded file /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/files/requirements.txt
+2021-01-27 01:42:37,002 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: poll_exit
+2021-01-27 01:42:37,003 DEBUG   SenderThread:11904 [sender.py:send():117] send: request
+2021-01-27 01:42:37,003 DEBUG   SenderThread:11904 [sender.py:send_request():126] send_request: poll_exit
+2021-01-27 01:42:37,003 INFO    SenderThread:11904 [file_pusher.py:join():175] waiting for file pusher
+2021-01-27 01:42:37,005 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: get_summary
+2021-01-27 01:42:37,007 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: sampled_history
+2021-01-27 01:42:37,009 DEBUG   HandlerThread:11904 [handler.py:handle_request():55] handle_request: shutdown
+2021-01-27 01:42:37,009 INFO    HandlerThread:11904 [handler.py:finish():274] shutting down handler
+2021-01-27 01:42:37,958 INFO    WriterThread:11904 [datastore.py:close():258] close: /disk2/yunhokim/Matterport3DSimulator/wandb/run-20210127_013435-p2e03idy/run-p2e03idy.wandb
+2021-01-27 01:42:38,004 INFO    SenderThread:11904 [sender.py:finish():756] shutting down sender
+2021-01-27 01:42:38,004 INFO    SenderThread:11904 [file_pusher.py:finish():170] shutting down file pusher
+2021-01-27 01:42:38,004 INFO    SenderThread:11904 [file_pusher.py:join():175] waiting for file pusher
+2021-01-27 01:42:38,006 INFO    MainThread:11904 [internal.py:handle_exit():139] Internal process exited

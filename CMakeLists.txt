@@ -14,6 +14,7 @@ endif()
 
 include_directories("${PROJECT_SOURCE_DIR}/include")
 
+set (OpenCV_DIR "/disk2/yunhokim/opencv/build/")
 find_package(OpenCV REQUIRED)
 find_package(PkgConfig REQUIRED)
 find_package(OpenMP)

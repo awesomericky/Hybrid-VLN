@@ -1,12 +1,15 @@
-
+import sys
+sys.path.append('build')
+sys.path.append('tasks/R2R/fasterRCNN_w_vg')
 import MatterSim
 import time
 import math
 import cv2
 import numpy as np
+from obj_detection import setup_obj_detection, _get_obj_detection
 
-WIDTH = 800
-HEIGHT = 600
+WIDTH = 160
+HEIGHT = 120
 VFOV = math.radians(60)
 HFOV = VFOV*WIDTH/HEIGHT
 TEXT_COLOR = [230, 40, 40]
@@ -17,11 +20,14 @@ cv2.namedWindow('Python Depth')
 sim = MatterSim.Simulator()
 sim.setCameraResolution(WIDTH, HEIGHT)
 sim.setCameraVFOV(VFOV)
-sim.setDepthEnabled(False) # Turn on depth only after running ./scripts/depth_to_skybox.py (see README.md)
+sim.setRenderingEnabled(True)
+sim.setDepthEnabled(True) # Turn on depth only after running ./scripts/depth_to_skybox.py (see README.md)
+sim.setDiscretizedViewingAngles(True)
 sim.initialize()
+
 #sim.newEpisode(['2t7WUuJeko7'], ['1e6b606b44df4a6086c0f97e826d4d15'], [0], [0])
-#sim.newEpisode(['1LXtFkjw3qL'], ['0b22fa63d0f54a529c525afbf2e8bb25'], [0], [0])
-sim.newRandomEpisode(['1LXtFkjw3qL'])
+sim.newEpisode(['uNb9QFRL6hY'], ['84722e58b32f4646acc12614994f835b'], [0], [0])
+#sim.newRandomEpisode(['wc2JMjhGNzB'])
 
 heading = 0
 elevation = 0
@@ -33,6 +39,9 @@ print('Use arrow keys to move the camera.')
 print('Use number keys (not numpad) to move to nearby viewpoints indicated in the RGB view.')
 print('Depth outputs are turned off by default - check driver.py:L20 to enable.\n')
 
+# fasterRCNN, args, classes, class_indexs, im_data, im_info, num_boxes, gt_boxes = setup_obj_detection()
+obj_state = 0
+
 while True:
     sim.makeAction([location], [heading], [elevation])
     location = 0
@@ -42,6 +51,7 @@ while True:
     state = sim.getState()[0]
     locations = state.navigableLocations
     rgb = np.array(state.rgb, copy=False)
+    print(state.viewIndex)
     for idx, loc in enumerate(locations[1:]):
         # Draw actions on the screen
         fontScale = 3.0/loc.rel_distance
@@ -53,6 +63,13 @@ while True:
 
     depth = np.array(state.depth, copy=False)
     cv2.imshow('Python Depth', depth)
+    import pdb; pdb.set_trace()
+    
+    img_config = state.scanId + '_' + state.location.viewpointId + '_' + str(state.viewIndex)
+    if obj_state == 0:
+       # _get_obj_detection(rgb, img_config, fasterRCNN, args, classes, class_indexs, im_data, im_info, num_boxes, gt_boxes)
+       obj_state = 1
+
     k = cv2.waitKey(1)
     if k == -1:
         continue
@@ -66,9 +83,13 @@ while True:
             location = 0
     elif k == 81 or k == ord('a'):
         heading = -ANGLEDELTA
+        obj_state = 0
     elif k == 82 or k == ord('w'):
         elevation = ANGLEDELTA
+        obj_state = 0
     elif k == 83 or k == ord('d'):
         heading = ANGLEDELTA
+        obj_state = 0
     elif k == 84 or k == ord('s'):
         elevation = -ANGLEDELTA
+        obj_state = 0
