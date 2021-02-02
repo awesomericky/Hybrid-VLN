@@ -6,7 +6,7 @@ import time
 import math
 import cv2
 import numpy as np
-from obj_detection import setup_obj_detection, _get_obj_detection
+# from obj_detection import setup_obj_detection, _get_obj_detection
 
 WIDTH = 160
 HEIGHT = 120

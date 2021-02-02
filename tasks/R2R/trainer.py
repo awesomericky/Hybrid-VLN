@@ -77,6 +77,7 @@ class PanoSeq2SeqTrainer():
                 if self.agent.value_loss is not None:
                     tb_logger.add_scalar('train/value_loss', self.agent.value_loss, current_iter)
             """
+            """
             if iter % 10 == 0:
                 current_iter = iter + (epoch - 1) * self.train_iters_epoch
                 wandb.log({'iter':current_iter})
@@ -85,7 +86,7 @@ class PanoSeq2SeqTrainer():
                 wandb.log({'train/movements':movement})
                 if self.agent.value_loss is not None:
                     wandb.log({'train/value_loss':self.agent.value_loss})
-
+            """
             print('Epoch: [{0}][{1}/{2}]\t'
                   'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
                   'Loss {loss.val:.4f} ({loss.avg:.4f})\t'.format(
@@ -102,6 +103,7 @@ class PanoSeq2SeqTrainer():
             if self.agent.val_acc is not None:
                 tb_logger.add_scalar('epoch/train/val_acc', val_acces.avg, epoch)
         """
+        """
         wandb.log({'epoch': epoch})
         wandb.log({'epoch/learning_rate': self.optimizer.param_groups[0]['lr']})
         wandb.log({'epoch/train/loss': losses.avg})
@@ -111,7 +113,7 @@ class PanoSeq2SeqTrainer():
            wandb.log({'epoch/train/val_loss': val_losses.avg})
         if self.agent.val_acc is not None:
            wandb.log({'epoch/train/val_acc': val_acces.avg})
-
+        """
     def eval(self, epoch, val_env, tb_logger=None):
         batch_time = AverageMeter()
         losses = AverageMeter()
@@ -169,6 +171,7 @@ class PanoSeq2SeqTrainer():
                     if self.agent.value_loss is not None:
                         tb_logger.add_scalar('{}/val_loss'.format(env_name), self.agent.value_loss, current_iter)
                 """
+                """
                 if iter % 5 == 0:
                     current_iter = iter + (epoch - 1) * val_iters_epoch
                     wandb.log({'val_iter':current_iter})
@@ -177,7 +180,7 @@ class PanoSeq2SeqTrainer():
                     wandb.log({'val/{}/movements'.format(env_name): movement})
                     if self.agent.value_loss is not None:
                         wandb.log({'val/{}/val_loss'.format(env_name): self.agent.value_loss})
-
+                """
                 # measure elapsed time
                 batch_time.update(time.time() - end)
                 end = time.time()
@@ -197,7 +200,7 @@ class PanoSeq2SeqTrainer():
                             'path': traj_['path'],
                             'distance': traj_['distance'],
                             'img_attn': traj_['img_attn'],
-                            'low_visual_feat': traj_['low_visual_feat']
+                            'low_visual_feat': traj_['low_visual_feat'],
                             'ctx_attn': traj_['ctx_attn'],
                             'value': traj_['value'],
                             'viewpoint_idx': traj_['viewpoint_idx'],
@@ -217,6 +220,7 @@ class PanoSeq2SeqTrainer():
             if self.agent.val_acc is not None:
                 tb_logger.add_scalar('epoch/{}/val_acc'.format(env_name), val_acces.avg, epoch)
         """
+        """
         wandb.log({'val_epoch': epoch})
         wandb.log({'val/epoch/{}/loss'.format(env_name): losses.avg})
         wandb.log({'val/epoch/{}/dist_from_goal'.format(env_name): dists.avg})
@@ -225,7 +229,7 @@ class PanoSeq2SeqTrainer():
            wandb.log({'val/epoch/{}/val_loss'.format(env_name): val_losses.avg})
         if self.agent.val_acc is not None:
            wandb.log({'val/epoch/{}/val_acc'.format(env_name): val_acces.avg})
-
+        """
         # dump into JSON file
         if self.opts.eval_beam:
             self.agent.results_path = '{}{}-beam_{}_{}_epoch_{}.json'.format(self.opts.results_dir, self.opts.exp_name,
@@ -245,8 +249,9 @@ class PanoSeq2SeqTrainer():
             if tb_logger:
                 tb_logger.add_scalar('score/{}/{}'.format(env_name, metric), val, epoch)
             """
+            """
             wandb.log({'score/{}/{}'.format(env_name, metric): val})
-            
+            """
         print(result_str)
 
         return success_rate

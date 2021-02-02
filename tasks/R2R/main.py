@@ -1,8 +1,9 @@
 import argparse
 
 import torch
+import wandb
 
-from env import R2RPanoBatch, load_features
+from env import R2RBatch, load_features
 from eval import Evaluation
 from utils import setup, read_vocab, Tokenizer, set_tb_logger, is_experiment, padding_idx, resume_training, save_checkpoint
 from trainer import PanoSeq2SeqTrainer
@@ -21,10 +22,10 @@ parser.add_argument('--exp_name_secondary', default='', type=str,
 
 # Dataset options
 parser.add_argument('--train_vocab',
-                    default='tasks/R2R-pano/data/train_vocab.txt',
+                    default='tasks/R2R/data/train_vocab.txt',
                     type=str, help='path to training vocab')
 parser.add_argument('--trainval_vocab',
-                    default='tasks/R2R-pano/data/trainval_vocab.txt',
+                    default='tasks/R2R/data/trainval_vocab.txt',
                     type=str, help='path to training and validation vocab')
 parser.add_argument('--img_feat_dir',
                     default='preprocessed_data/img_features/ResNet-152-imagenet.tsv',
@@ -171,7 +172,8 @@ def main(opts):
 
     # create policy model
     policy_model_kwargs = {
-        'training_state': 3
+        'batch_size': opts.batch_size,
+        'training_state': 3,
         'opts': opts,
         'img_fc_dim': opts.img_fc_dim,
         'img_fc_use_batchnorm': opts.img_fc_use_batchnorm == 1,
@@ -180,7 +182,8 @@ def main(opts):
         'rnn_hidden_size': opts.rnn_hidden_size,
         'action_embedding_size': opts.rnn_hidden_size,
         'rnn_dropout': opts.rnn_dropout,
-        'max_navigable': opts.max_navigable
+        'max_navigable': opts.max_navigable,
+        'max_len': opts.max_cap_length
     }
 
     if opts.arch == 'hybrid':
@@ -208,7 +211,7 @@ def main(opts):
 
     if opts.test_submission:
         assert opts.resume, 'The model was not resumed before running for submission.'
-        test_env = ('test', (R2RPanoBatch(opts, feature, img_spec, batch_size=opts.batch_size,
+        test_env = ('test', (R2RBatch(opts, feature, img_spec, batch_size=opts.batch_size,
                                  splits=['test'], tokenizer=tok), Evaluation(['test'])))
         agent_kwargs = {
             'opts': opts,
@@ -227,13 +230,13 @@ def main(opts):
 
     # set up R2R environments
     if not opts.train_data_augmentation:
-        train_env = R2RPanoBatch(opts, feature, img_spec, batch_size=opts.batch_size, seed=opts.seed,
+        train_env = R2RBatch(opts, feature, img_spec, batch_size=opts.batch_size, seed=opts.seed,
                                  splits=['train'], tokenizer=tok)
     else:
-        train_env = R2RPanoBatch(opts, feature, img_spec, batch_size=opts.batch_size, seed=opts.seed,
+        train_env = R2RBatch(opts, feature, img_spec, batch_size=opts.batch_size, seed=opts.seed,
                                  splits=['synthetic'], tokenizer=tok)
 
-    val_envs = {split: (R2RPanoBatch(opts, feature, img_spec, batch_size=opts.batch_size,
+    val_envs = {split: (R2RBatch(opts, feature, img_spec, batch_size=opts.batch_size,
                                      splits=[split], tokenizer=tok), Evaluation([split]))
                 for split in ['val_seen', 'val_unseen']}
 
@@ -283,7 +286,7 @@ def main(opts):
                     'epochs_data_augmentation':opts.epochs_data_augmentation,
                     'max_episode_len':opts.max_episode_len,
                     'resume':opts.resume}
-
+    """
     if len(opts.resume) < 2 or opts.exp_name.split('|')[1].split('_')[0]=='synthetic':
        wandb_id = wandb.util.generate_id()
        print('Wandb id: {}'.format(wandb_id))
@@ -295,7 +298,7 @@ def main(opts):
        wandb_id = wandb_id[0].strip()
 
     wandb.init(project='VLN', name='hybrid', id=wandb_id, resume="allow", config=wandb_config)
-
+    """
     best_success_rate = best_success_rate if opts.resume else 0.0
 
     for epoch in range(opts.start_epoch, opts.max_num_epochs + 1):
@@ -326,7 +329,7 @@ def main(opts):
                 }, is_best, checkpoint_dir=opts.checkpoint_dir, name=opts.exp_name)
 
         if opts.train_data_augmentation and epoch == opts.epochs_data_augmentation:
-            train_env = R2RPanoBatch(opts, feature, img_spec, batch_size=opts.batch_size, seed=opts.seed,
+            train_env = R2RBatch(opts, feature, img_spec, batch_size=opts.batch_size, seed=opts.seed,
                                      splits=['train'], tokenizer=tok)
 
     print("--> Finished training")

@@ -1,6 +1,7 @@
 import json
 import random
 import numpy as np
+import pdb
 
 import torch
 import torch.nn as nn
@@ -70,14 +71,18 @@ class PanoBaseAgent(object):
 
         return action
 
-    def _next_viewpoint(self, obs, viewpoints, navigable_index, action, ended):
+    def _next_viewpoint(self, obs, viewpoints, navigable_index, action, ended, max_navigable):
         next_viewpoints, next_headings = [], []
         next_viewpoint_idx = []
 
         for i, ob in enumerate(obs):
-            if action[i] < self.max_navigable:
+            if action[i] < max_navigable:
                 next_viewpoint_idx.append(action[i])
-                next_viewpoints.append(viewpoints[i][navigable_index.index(action[i]) + 1])
+           
+                curr_navigable_index = np.asarray(navigable_index[i])
+                corresponding_index = list(np.where(curr_navigable_index == action[i].numpy())[0])
+                choice_index = np.random.choice(corresponding_index, 1)[0]
+                next_viewpoints.append(viewpoints[i][choice_index+1])  # add 1 to index considering the <STAY> viewpoint in 0 index of viewpooints, which is not considered in navigable_index
             else:
                 next_viewpoint_idx.append('STAY')
                 next_viewpoints.append(viewpoints[i][0])
@@ -129,7 +134,7 @@ class PanoBaseAgent(object):
                     if ended[i] and self.opts.use_ignore_index:
                         target_index.append(self.ignore_index)
                     else:
-                        target_index.append(j)
+                        target_index.append(index_list[-1])
 
             # we ignore the first index because it's the viewpoint index of the current location
             # not the viewpoint index for one of the navigable directions
@@ -168,6 +173,8 @@ class PanoSeq2SeqAgent(PanoBaseAgent):
 
         self.MSELoss = nn.MSELoss()
         self.MSELoss_sum = nn.MSELoss(reduction='sum')
+
+        self.stop_idx_mask = torch.ones(opts.batch_size).unsqueeze(-1).float().to(self.device)
 
     def get_value_loss_from_start(self, traj, predicted_value, ended):
         """
@@ -283,38 +290,56 @@ class PanoSeq2SeqAgent(PanoBaseAgent):
 
     def rollout_hybrid(self):
         obs = np.array(self.env.reset())  # load a mini-batch
+        instructions = []
+
+        for ob in obs:
+           instructions.append(ob['instructions'])
+
         batch_size = len(obs)
 
         seq, seq_lengths = super(PanoSeq2SeqAgent, self)._sort_batch(obs)
-
+        
         ctx, h_t, c_t, ctx_mask = self.encoder(seq, seq_lengths)
 
-        pre_action_feat = torch.zeros(batch_size, self.opts.img_feat_input_dim).to(self.device)
+        pre_action = self.stop_idx * torch.ones(batch_size)
+        pre_action = pre_action.long().to(self.device)
 
         # initialize the trajectory
         traj, scan_id, ended, last_recorded = self.init_traj(obs)
 
         loss = 0
         for step in range(self.opts.max_episode_len):
+            print(step)
+
+            weighted_ctx, ctx_attn = self.model((h_t, ctx), ctx_mask=ctx_mask, input_type='ctx')
+
+            ###1000 #500 #500 # 500
+            pdb.set_trace()
+            instruction_datas = [instructions, ctx_attn]
+            obs = self.env._get_obs(model_input=instruction_datas)
 
             img_feat, depth_feat, obj_detection_feat, num_navigable_feat, \
             viewpoints_indices = super(PanoSeq2SeqAgent, self).pano_navigable_feat(obs, ended)
             viewpoints, navigable_index, target_index = viewpoints_indices
 
+            #500 #0 #0
             img_feat = img_feat.to(self.device)
             depth_feat = depth_feat.to(self.device)
             obj_detection_feat = obj_detection_feat.to(self.device)
             num_navigable_feat = num_navigable_feat.to(self.device)
             target = torch.LongTensor(target_index).to(self.device)
+            pdb.set_trace()
 
             # forward pass the network
-            h_t, c_t, weighted_ctx, img_attn, low_visual_feat, ctx_attn, logit, value, navigable_mask = self,model(
-                img_feat, depth_feat, obj_detection_feat, num_navigable_feat,
-                pre_action, h_t, c_t, ctx, navigable_index=navigable_index, ctx_mask=ctx_mask)
+            h_t, c_t, weighted_ctx, img_attn, low_visual_feat, ctx_attn, logit, value, navigable_mask = self.model(
+                (img_feat, depth_feat, obj_detection_feat, num_navigable_feat,
+                pre_action, h_t, c_t, weighted_ctx, ctx_attn),  navigable_index=navigable_index, ctx_mask=ctx_mask)
 
             # set other values to -inf so that logsoftmax will not affect the final computed loss
+            navigable_mask = torch.cat((navigable_mask, self.stop_idx_mask), dim=1)
             logit.data.masked_fill_((navigable_mask == 0).data, -float('inf'))
             current_logit_loss = self.criterion(logit, target)
+
             # select action based on prediction
             action = super(PanoSeq2SeqAgent, self)._select_action(logit, ended, fix_action_ended=self.opts.fix_action_ended)
 
@@ -332,10 +357,9 @@ class PanoSeq2SeqAgent(PanoBaseAgent):
                             1 - self.opts.value_loss_weight) * current_logit_loss
             else:
                 current_loss = torch.zeros(1)  # during testing where we do not have ground-truth, loss is simply 0
-            loss += current_loss
 
             next_viewpoints, next_headings, next_viewpoint_idx, ended = super(PanoSeq2SeqAgent, self)._next_viewpoint(
-                obs, viewpoints, navigable_index, action, ended)
+                obs, viewpoints, navigable_index, action, ended, self.opts.max_navigable)
 
             # make a viewpoint change in the env
             obs = self.env.step(scan_id, next_viewpoints, next_headings)
@@ -344,7 +368,7 @@ class PanoSeq2SeqAgent(PanoBaseAgent):
             traj, last_recorded = self.update_traj(obs, traj, img_attn, low_visual_feat, ctx_attn, value, next_viewpoint_idx,
                                                    navigable_index, ended, last_recorded)
 
-            pre_action = action
+            pre_action = action.long().to(self.device)
 
             # Early exit if all ended
             if last_recorded.all():

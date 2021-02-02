@@ -4,6 +4,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
+import torch.nn.functional as F
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -32,9 +33,13 @@ class SoftAttention(nn.Module):
     """Soft-Attention without learnable parameters
     """
 
-    def __init__(self):
+    def __init__(self, extra_mask_needed=0, batch_size=None, device=None):
         super(SoftAttention, self).__init__()
+         
         self.softmax = nn.Softmax(dim=1)
+        self.extra_mask_needed = extra_mask_needed
+        if extra_mask_needed:
+           self.stop_idx_mask = torch.ones(batch_size).unsqueeze(-1).float().to(device)
 
     def forward(self, h, proj_context, context=None, mask=None, reverse_attn=False):
         """Propagate h through the network.
@@ -48,8 +53,10 @@ class SoftAttention(nn.Module):
 
         if reverse_attn:
             attn = -attn
-
+        
         if mask is not None:
+            if self.extra_mask_needed:
+               mask = torch.cat((mask, self.stop_idx_mask), dim=1)
             attn.data.masked_fill_((mask == 0).data, -float('inf'))
         attn = self.softmax(attn)
         attn3 = attn.view(attn.size(0), 1, attn.size(1))  # batch x 1 x seq_len
@@ -79,7 +86,9 @@ class PositionalEncoding(nn.Module):
         self.register_buffer('pe', pe)
 
     def forward(self, x):
+        import pdb; pdb.set_trace()
         x = x + Variable(self.pe[:, :x.size(1)], requires_grad=False)
+        pdb.set_trace()
         return self.dropout(x)
 
 class Dynamic_conv2d_attention(nn.Module):
@@ -94,12 +103,11 @@ class Dynamic_conv2d_attention(nn.Module):
 
     def _initialize_weights(self):
         for m in self.modules():
-            if isinstance(m, nn.Linear):
-                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
-                if m.bias is not None:
-                    nn.init.constant_(m.bias, 0)
-            else:
-                raise ValueError('Check the dynamic convolution model')
+            for n in m.modules():
+               if isinstance(n, nn.Linear):
+                   nn.init.kaiming_normal_(n.weight, mode='fan_out', nonlinearity='relu')
+                   if n.bias is not None:
+                      nn.init.constant_(n.bias, 0)
 
     def updata_temperature(self):
         if self.temperature!=1:

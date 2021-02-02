@@ -15,7 +15,7 @@ import pickle
 import torch
 from scipy.special import softmax
 
-from utils import load_datasets, load_nav_graphs
+from utils import load_datasets, load_nav_graphs, print_progress
 
 csv.field_size_limit(sys.maxsize)
 
@@ -24,32 +24,53 @@ SAFE_DEPTH_THRESHOLD = 5*4000
 INSTRUCTION_ATTENTION_THRESHOLD = 5
 
 
+def load_features(feature_store):
+    def _make_id(scanId, viewpointId):
+        return scanId + '_' + viewpointId
+
+    # if the tsv file for image features is provided
+    if feature_store:
+        tsv_fieldnames = ['scanId', 'viewpointId', 'image_w', 'image_h', 'vfov', 'features']
+        features = {}
+        with open(feature_store, "r") as tsv_in_file:
+            print('Reading image features file %s' % feature_store)
+            reader = list(csv.DictReader(tsv_in_file, delimiter='\t', fieldnames=tsv_fieldnames))
+            total_length = len(reader)
+
+            print('Loading image features ..')
+            for i, item in enumerate(reader):
+                # image_h = int(item['image_h'])
+                # image_w = int(item['image_w'])
+                # vfov = int(item['vfov'])
+                long_id = _make_id(item['scanId'], item['viewpointId'])
+                features[long_id] = np.frombuffer(base64.b64decode(item['features']),
+                                                       dtype=np.float32).reshape((36, 2048))
+                # print_progress(i + 1, total_length, prefix='Progress:',
+                #                suffix='Complete', bar_length=50)
+    else:
+        print('Image features not provided')
+        features = None
+        # image_w = 640
+        # image_h = 480
+        # vfov = 60
+
+    # downsize image (downsized by 4)
+    image_w = 160  # 640/4
+    image_h = 120  # 480/4
+    vfov = 60
+
+    return features, (image_w, image_h, vfov)
+
 class EnvBatch():
     ''' A simple wrapper for a batch of MatterSim environments,
         using discretized viewpoints and pretrained features '''
 
-    def __init__(self, feature_store=None, batch_size=100):
-        if feature_store:
-            print('Loading image features from %s' % feature_store)
-            tsv_fieldnames = ['scanId', 'viewpointId', 'image_w','image_h', 'vfov', 'features']
-            self.features = {}
-            with open(feature_store, "rt") as tsv_in_file:
-                reader = csv.DictReader(tsv_in_file, delimiter='\t', fieldnames = tsv_fieldnames)
-                for item in reader:
-                    # self.image_h = int(item['image_h'])
-                    # self.image_w = int(item['image_w'])
-                    # self.vfov = int(item['vfov'])
-                    long_id = self._make_id(item['scanId'], item['viewpointId'])
-                    self.features[long_id] = np.frombuffer(base64.b64decode(item['features']),
-                            dtype=np.float32).reshape((36, 2048))
-        else:
-            print('Image features not provided')
-            self.features = None
+    def __init__(self, features, img_spec, batch_size=100):
+
+        self.features = features
         
         # downsize image (downsized by 4)
-        self.image_w = 160  # 640/4
-        self.image_h = 120  # 480/4
-        self.vfov = 60
+        self.image_w, self.image_h, self.vfov = img_spec
 
         # Rendering is not needed because needed features(ResNet image, depth, object detection, number of navigable locations)
         # are precomputed and will be loaded from memory
@@ -71,7 +92,7 @@ class EnvBatch():
     def newEpisodes(self, scanIds, viewpointIds, headings):
         self.sim.newEpisode(scanIds, viewpointIds, headings, [0]*self.batch_size)
 
-    def getStates(self, instruction_datas):
+    def getStates(self, instruction_datas=None):
 
         """
 
@@ -96,6 +117,12 @@ class EnvBatch():
 
         total_feature_states = []
         states = self.sim.getState()
+        if instruction_datas == None:
+           for state in states:
+              total_feature_states.append(state)
+           
+           return total_feature_states
+
         for state in states:
             scanId = state.scanId
             viewpointId = state.location.viewpointId
@@ -114,7 +141,7 @@ class EnvBatch():
 
             raw_depth = np.load(file_name)['depth'] # (1, 120*3, 160*12)
             normalized_raw_depth = raw_depth/np.max(raw_depth)
-            clip_depth = np.clip(raw_depth, a_max=SAFE_DEPTH_THRESHOLD)
+            clip_depth = np.clip(raw_depth, a_min=0, a_max=SAFE_DEPTH_THRESHOLD)
             normalized_clip_depth = clip_depth/np.max(clip_depth)
 
             spatial_depth[0, :, :] = normalized_raw_depth
@@ -122,9 +149,12 @@ class EnvBatch():
 
             # Object detection
             spatial_obj_detection = np.zeros((1, self.image_h*3, self.image_w*12), dtype=np.float32)
+     
+            
+            # instruction_data = (instruction, instruction_attn) # 'instruction' type: list, 'instruction_attn' type: tensor
+            instruction = instruction_datas[0][states.index(state)]
+            instruction_attn = instruction_datas[1][states.index(state), :]
 
-            instruction_data = instruction_datas[states.index(state)]
-            instruction, instruction_attn = instruction_data  # instruction_data = (instruction, instruction_attn) # 'instruction' type: list, 'instruction_attn' type: tensor
             instruction_attn_values, instruction_attn_indices = torch.topk(instruction_attn, INSTRUCTION_ATTENTION_THRESHOLD)
 
             instruction_attn_values = instruction_attn_values.detach().cpu().numpy()
@@ -140,7 +170,11 @@ class EnvBatch():
                 with open(file_name, 'rb') as f:
                     object_detection_result = pickle.load(f)
                 
-                detected_objects = object_detection_result.keys()
+                detected_objects = []
+                detected_objects_bboxs = []
+                for ii, obj_result in enumerate(object_detection_result):
+                    detected_objects.append(obj_result[0])
+                    detected_objects_bboxs.append(obj_result[1])
 
                 final_attn_words = []
                 final_attn_values = []
@@ -148,9 +182,10 @@ class EnvBatch():
 
                 for detected_object in detected_objects:
                     if detected_object in attn_words:
+                        print('obj detection working well!!!')
                         final_attn_words.append(detected_object)
                         final_attn_values.append(instruction_attn_values[attn_words.index(detected_object)])
-                        final_attn_bboxs.append(object_detection_result[detected_object])
+                        final_attn_bboxs.append(detected_objects_bboxs[detected_objects.index(detected_object)])
                 
                 if len(final_attn_words) == 0:
                     final_partial_obj_detection = np.zeros((1, self.image_h, self.image_w), dtype=np.float32)
@@ -222,8 +257,8 @@ class EnvBatch():
 class R2RBatch():
     ''' Implements the Room to Room navigation task, using discretized viewpoints and pretrained features '''
 
-    def __init__(self, opts, feature_store, batch_size=100, seed=10, splits=['train'], tokenizer=None):
-        self.env = EnvBatch(feature_store=feature_store, batch_size=batch_size)
+    def __init__(self, opts, features, img_spec, batch_size=100, seed=10, splits=['train'], tokenizer=None):
+        self.env = EnvBatch(features, img_spec, batch_size=batch_size)
         self.data = []
         self.scans = []
         self.opts = opts
@@ -329,7 +364,7 @@ class R2RBatch():
 
         # add the current viewpoint into navigable, so the agent can stay
         navigable[state.location.viewpointId] = {
-            'position': state.location.point,
+            'position': [state.location.x, state.location.y, state.location.z],
             'heading': state.heading,
             'rel_heading': state.location.rel_heading,
             'rel_elevation': state.location.rel_elevation,
@@ -375,8 +410,8 @@ class R2RBatch():
             viewpoint_idx = int(horizontal_idx + 12 * elevation_level)
 
             # To check whether multiple navigable locations correspond to same index
-            if viewpoint_idx in index_history:
-                print('Multiple navigable locations corresponding to same index exists!!!!')
+            # if viewpoint_idx in index_history:
+            #     print('Multiple navigable locations corresponding to same index exists!!!!')
             index_history.append(viewpoint_idx)
 
             dict_tmp['index'] = viewpoint_idx
@@ -411,46 +446,90 @@ class R2RBatch():
             next_viewpoint = state.location.viewpointId
         return next_viewpoint
 
-    def _get_obs(self, instruction_datas):
-        obs = []
-        for i,(spatial_img_feature, spatial_depth, spatial_obj_detection, spatial_n_navigable, state) in enumerate(self.env.getStates(instruction_datas)):
-            item = self.batch[i]
+    def _get_obs(self, model_input=None):
 
-            if self.opts.follow_gt_traj:
-                goal_viewpoint = self.shortest_path_to_gt_traj(state, item['path'])
-            else:
-                goal_viewpoint = item['path'][-1]
+        if model_input == None:
+           obs = []
+           for i, state in enumerate(self.env.getStates()):
+               item = self.batch[i]
 
-            # compute the navigable viewpoints and next ground-truth viewpoint
-            navigable, gt_viewpoint_idx = self._pano_navigable(state, goal_viewpoint)
+               if self.opts.follow_gt_traj:
+                   goal_viewpoint = self.shortest_path_to_gt_traj(state, item['path'])
+               else:
+                   goal_viewpoint = item['path'][-1]
 
-            # in synthetic data, path_id is unique since we only has 1 instruction per path, we will then use it as 'instr_id'
-            if 'synthetic' in self.splits:
-                assert len(self.splits) == 1 'Should only use synthetic data, when using synthetic data for traing'
-                item['instr_id'] = str(item['path_id'])
-            
-            obs.append({
-                'instr_id' : item['instr_id'],
-                'scan' : state.scanId,
-                'viewpoint' : state.location.viewpointId,
-                'viewIndex' : state.viewIndex,
-                'heading' : state.heading,
-                'elevation' : state.elevation,
-                'spatial_image_feature': spatial_image_feature,
-                'spatial_depth': spatial_depth,
-                'spatial_obj_detection': spatial_obj_detection,
-                'spatial_n_navigable': spatial_n_navigable,
-                'step' : state.step,
-                'navigableLocations': navigable,
-                'instructions' : item['instructions'],
-                'teacher': item['path'],
-                # 'teacher' : self._shortest_path_action(state, item['path'][-1]),
-                'new_teacher': self.paths[state.scanId][state.location.viewpointId][item['path'][-1]],
-                'gt_viewpoint_idx': gt_viewpoint_idx
-            })
-            if 'instr_encoding' in item:
-                obs[-1]['instr_encoding'] = item['instr_encoding']
-        return obs
+               # compute the navigable viewpoints and next ground-truth viewpoint
+               navigable, gt_viewpoint_idx = self._pano_navigable(state, goal_viewpoint)
+
+               # in synthetic data, path_id is unique since we only has 1 instruction per path, we will then use it as 'instr_id'
+               if 'synthetic' in self.splits:
+                   assert len(self.splits) == 1
+                   item['instr_id'] = str(item['path_id'])
+
+               obs.append({
+                   'instr_id' : item['instr_id'],
+                   'scan' : state.scanId,
+                   'viewpoint' : state.location.viewpointId,
+                   'viewIndex' : state.viewIndex,
+                   'heading' : state.heading,
+                   'elevation' : state.elevation,
+                   # 'spatial_image_feature': spatial_img_feature,
+                   # 'spatial_depth': spatial_depth,
+                   # 'spatial_obj_detection': spatial_obj_detection,
+                   # 'spatial_n_navigable': spatial_n_navigable,
+                   'step' : state.step,
+                   'navigableLocations': navigable,
+                   'instructions' : item['instructions'],
+                   'teacher': item['path'],
+                   # 'teacher' : self._shortest_path_action(state, item['path'][-1]),
+                   'new_teacher': self.paths[state.scanId][state.location.viewpointId][item['path'][-1]],
+                   'gt_viewpoint_idx': gt_viewpoint_idx
+               })
+               if 'instr_encoding' in item:
+                   obs[-1]['instr_encoding'] = item['instr_encoding']
+           return obs
+
+        else:
+           instruction_datas = model_input
+           obs = []
+           for i,(spatial_img_feature, spatial_depth, spatial_obj_detection, spatial_n_navigable, state) in enumerate(self.env.getStates(instruction_datas=instruction_datas)):
+               item = self.batch[i]
+
+               if self.opts.follow_gt_traj:
+                   goal_viewpoint = self.shortest_path_to_gt_traj(state, item['path'])
+               else:
+                   goal_viewpoint = item['path'][-1]
+
+               # compute the navigable viewpoints and next ground-truth viewpoint
+               navigable, gt_viewpoint_idx = self._pano_navigable(state, goal_viewpoint)
+
+               # in synthetic data, path_id is unique since we only has 1 instruction per path, we will then use it as 'instr_id'
+               if 'synthetic' in self.splits:
+                   assert len(self.splits) == 1
+                   item['instr_id'] = str(item['path_id'])
+         
+               obs.append({
+                   'instr_id' : item['instr_id'],
+                   'scan' : state.scanId,
+                   'viewpoint' : state.location.viewpointId,
+                   'viewIndex' : state.viewIndex,
+                   'heading' : state.heading,
+                   'elevation' : state.elevation,
+                   'spatial_image_feature': spatial_img_feature,
+                   'spatial_depth': spatial_depth,
+                   'spatial_obj_detection': spatial_obj_detection,
+                   'spatial_n_navigable': spatial_n_navigable,
+                   'step' : state.step,
+                   'navigableLocations': navigable,
+                   'instructions' : item['instructions'],
+                   'teacher': item['path'],
+                   # 'teacher' : self._shortest_path_action(state, item['path'][-1]),
+                   'new_teacher': self.paths[state.scanId][state.location.viewpointId][item['path'][-1]],
+                   'gt_viewpoint_idx': gt_viewpoint_idx
+               })
+               if 'instr_encoding' in item:
+                   obs[-1]['instr_encoding'] = item['instr_encoding']
+           return obs
 
     def reset(self):
         ''' Load a new minibatch / episodes. '''

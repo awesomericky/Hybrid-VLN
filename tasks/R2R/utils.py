@@ -72,10 +72,10 @@ def load_datasets(splits, opts=None):
     for split in splits:
         assert split in ['train', 'val_seen', 'val_unseen', 'test', 'train_val_seen', 'synthetic']
         if split == 'synthetic':
-            with open('tasks/R2R-pano/data/R2R_literal_speaker_data_augmentation_paths.json') as f:
+            with open('tasks/R2R/data/R2R_literal_speaker_data_augmentation_paths.json') as f:
                 data += json.load(f)
         else:
-            with open('tasks/R2R-pano/data/R2R_%s.json' % split) as f:
+            with open('tasks/R2R/data/R2R_%s.json' % split) as f:
                 data += json.load(f)
 
     return data

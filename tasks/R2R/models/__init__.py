@@ -1,3 +1,3 @@
 from models.encoder import EncoderRNN
-from models.modules import ScaledDotProductAttention, PositionalEncoding
-from models.policy_model import SelfMonitoring, SpeakerFollowerBaseline
+from models.modules import PositionalEncoding
+from models.policy_model import HybridAgent
