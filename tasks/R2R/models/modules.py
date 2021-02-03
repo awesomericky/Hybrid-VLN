@@ -1,5 +1,6 @@
 import math
 import numpy as np
+import pdb
 
 import torch
 import torch.nn as nn
@@ -86,10 +87,8 @@ class PositionalEncoding(nn.Module):
         self.register_buffer('pe', pe)
 
     def forward(self, x):
-        import pdb; pdb.set_trace()
-        x = x + Variable(self.pe[:, :x.size(1)], requires_grad=False)
-        pdb.set_trace()
-        return self.dropout(x)
+        x = x + Variable(self.pe[:, :x.size(1)], requires_grad=False)  #10
+        return self.dropout(x)  #10
 
 class Dynamic_conv2d_attention(nn.Module):
     def __init__(self, input_dim, hidden_dim, num_filters, temperature=30, init_weight=True):
@@ -125,6 +124,7 @@ class Dynamic_conv2d(nn.Module):
     def __init__(self, input_dim, hidden_dim, num_filters, kernel_size, input_channel, stride, padding, dilation, \
                 output_channel=1, groups=1, bias=True, temperature=30, init_weight=True):
         super(Dynamic_conv2d, self).__init__()
+        self.input_channel = input_channel
         self.output_channel = output_channel
         self.kernel_size = kernel_size
         self.stride = stride
@@ -135,17 +135,23 @@ class Dynamic_conv2d(nn.Module):
         self.num_filters = num_filters
         self.attention = Dynamic_conv2d_attention(input_dim, hidden_dim, num_filters, temperature)
 
-        self.weight = nn.Parameter(torch.randn(num_filters, output_channel, input_channel//groups, kernel_size, kernel_size), requires_grad=True)
-        if bias:
-            self.bias = nn.Parameter(torch.Tensor(num_filters, output_channel))
-        else:
-            self.bias = None
+        # self.weight = nn.Parameter(torch.randn(num_filters, output_channel//groups, input_channel//groups, kernel_size, kernel_size), requires_grad=True)
+        self.weights = []
+        self.bias = []
+        for _ in range(num_filters):
+            weight = nn.Parameter(torch.randn(output_channel, input_channel, kernel_size, kernel_size), requires_grad=True)
+            self.weights.append(weight)
+            if bias:
+                self.bias.append(nn.Parameter(torch.zeros(output_channel), requires_grad=True))
+        self.weights = torch.stack(self.weights).cuda()
+        self.bias = torch.stack(self.bias).cuda()
+
         if init_weight:
             self._initialize_weights()
 
     def _initialize_weights(self):
         for i in range(self.num_filters):
-            nn.init.kaiming_uniform_(self.weight[i])
+            nn.init.kaiming_uniform_(self.weights[i])
 
     def update_temperature(self):
         self.attention.updata_temperature()
@@ -153,20 +159,25 @@ class Dynamic_conv2d(nn.Module):
     def forward(self, filter_condition_input, model_input):
         softmax_attention = self.attention(filter_condition_input)
         batch_size, input_channel, height, width = model_input.size()
-        model_input = model_input.view(1, -1, height, width)
-        weight = self.weight.view(self.num_filters, -1)
+        weight = self.weights.view(self.num_filters, -1)
 
-        aggregate_weight = torch.mm(softmax_attention, weight).view(-1, input_channel, self.kernel_size, self.kernel_size)
+        aggregate_weight = torch.mm(softmax_attention, weight).view(-1, self.input_channel, self.kernel_size, self.kernel_size)
+        outputs = []
         if self.bias is not None:
-            aggregate_bias = torch.mm(softmax_attention, self.bias).view(-1)
-            output = F.conv2d(model_input, weight=aggregate_weight, bias=aggregate_bias, stride=self.stride, padding=self.padding,
-                              dilation=self.dilation, groups=self.groups*batch_size)
+            aggregate_bias = torch.mm(softmax_attention, self.bias)
+            
+            for i in range(batch_size):
+                output = F.conv2d(model_input[i].view(self.groups, -1, height, width), weight=aggregate_weight[i].unsqueeze(0), bias=aggregate_bias[i], stride=self.stride, padding=self.padding,
+                                  dilation=self.dilation, groups=1)
+                outputs.append(output.squeeze(1))
         else:
-            output = F.conv2d(model_input, weight=aggregate_weight, bias=None, stride=self.stride, padding=self.padding,
-                              dilation=self.dilation, groups=self.groups * batch_size)
+            for i in range(batch_size):
+                output = F.conv2d(model_input[i].view(self.groups, -1, height, width), weight=aggregate_weight[i].unsqueeze(0), bias=None, stride=self.stride, padding=self.padding,
+                                  dilation=self.dilation, groups=1)
+                outputs.append(output.squeeze(1))
+        outputs = torch.stack(outputs).squeeze(1)
 
-        output = output.view(batch_size, self.output_channel, height, width)
-        return output, softmax_attention
+        return outputs, softmax_attention
 
 def create_mask(batchsize, max_length, length):
     """Given the length create a mask given a padded tensor"""
@@ -175,13 +186,12 @@ def create_mask(batchsize, max_length, length):
         row[:length[idx]] = 1
     return tensor_mask.to(device)
 
-def create_new_mask(batchsize, max_length, batch_indexs):
+def create_new_mask(batchsize, max_length, batch_indexs, tensor_mask):
     """Given the index create a mask given a padded tensor"""
-    tensor_mask = torch.zeros(batchsize, max_length)
     for batch_num, indexs in enumerate(batch_indexs):
         for index in indexs:
             tensor_mask[batch_num, index] = 1
-    return tensor_mask.to(device)
+    return tensor_mask
 
 def proj_masking(feat, projector, mask=None):
     """Universal projector and masking"""

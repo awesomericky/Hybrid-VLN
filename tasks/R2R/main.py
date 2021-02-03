@@ -111,7 +111,7 @@ parser.add_argument('--rnn_hidden_size', default=256, type=int)
 parser.add_argument('--bidirectional', default=0, type=int)
 parser.add_argument('--rnn_num_layers', default=1, type=int)
 parser.add_argument('--rnn_dropout', default=0.5, type=float)
-parser.add_argument('--max_cap_length', default=80, type=int, help='maximum length of captions')
+parser.add_argument('--max_cap_length', default=100, type=int, help='maximum length of captions')  # 80
 
 # Evaluation options
 parser.add_argument('--eval_only', default=0, type=int,
@@ -127,12 +127,12 @@ parser.add_argument('--beam_size', default=5, type=int,
 
 # Output options
 parser.add_argument('--results_dir',
-                    default='tasks/R2R-pano/results/',
+                    default='tasks/R2R/results/',
                     type=str, help='where to save the output results for computing accuracy')
 parser.add_argument('--resume', default='', type=str,
                     help='two options for resuming the model: latest | best')
 parser.add_argument('--checkpoint_dir',
-                    default='tasks/R2R-pano/checkpoints/pano-seq2seq/',
+                    default='tasks/R2R/checkpoints/pano-seq2seq/',
                     type=str, help='where to save trained models')
 parser.add_argument('--tensorboard', default=1, type=int,
                     help='Use TensorBoard for loss visualization')
@@ -150,7 +150,7 @@ def main(opts):
 
     # create a batch training environment that will also preprocess text
     vocab = read_vocab(opts.train_vocab)
-    tok = Tokenizer(opts.remove_punctuation == 1, opts.reversed == 1, vocab=vocab, encoding_length=opts.max_cap_length)
+    tok = Tokenizer(opts.remove_punctuation == 1, opts.reversed == 0, vocab=vocab, encoding_length=opts.max_cap_length)
 
     # create language instruction encoder
     encoder_kwargs = {
@@ -286,7 +286,7 @@ def main(opts):
                     'epochs_data_augmentation':opts.epochs_data_augmentation,
                     'max_episode_len':opts.max_episode_len,
                     'resume':opts.resume}
-    """
+    
     if len(opts.resume) < 2 or opts.exp_name.split('|')[1].split('_')[0]=='synthetic':
        wandb_id = wandb.util.generate_id()
        print('Wandb id: {}'.format(wandb_id))
@@ -298,7 +298,7 @@ def main(opts):
        wandb_id = wandb_id[0].strip()
 
     wandb.init(project='VLN', name='hybrid', id=wandb_id, resume="allow", config=wandb_config)
-    """
+    
     best_success_rate = best_success_rate if opts.resume else 0.0
 
     for epoch in range(opts.start_epoch, opts.max_num_epochs + 1):

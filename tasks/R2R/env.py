@@ -182,7 +182,6 @@ class EnvBatch():
 
                 for detected_object in detected_objects:
                     if detected_object in attn_words:
-                        print('obj detection working well!!!')
                         final_attn_words.append(detected_object)
                         final_attn_values.append(instruction_attn_values[attn_words.index(detected_object)])
                         final_attn_bboxs.append(detected_objects_bboxs[detected_objects.index(detected_object)])
@@ -195,8 +194,7 @@ class EnvBatch():
                     obj_weight = softmax(np.asarray(final_attn_values))
                     obj_weight = obj_weight[:, np.newaxis, np.newaxis]
 
-                    for final_attn_bbox in final_attn_bboxs:
-                        index = final_attn_bboxs.index(final_attn_bbox)
+                    for index, final_attn_bbox in enumerate(final_attn_bboxs):
                         width = round(final_attn_bbox[2] - final_attn_bbox[0])
                         height = round(final_attn_bbox[3] - final_attn_bbox[1])
                         x = round(final_attn_bbox[0])
@@ -272,6 +270,7 @@ class R2RBatch():
                 new_item['instructions'] = instr
                 if tokenizer:
                     new_item['instr_encoding'] = tokenizer.encode_sentence(instr)
+                    new_item['instr_decoding'] = tokenizer.decode_sentence(new_item['instr_encoding'])
                 self.data.append(new_item)
         self.scans = set(self.scans)
         self.splits = splits
@@ -449,87 +448,91 @@ class R2RBatch():
     def _get_obs(self, model_input=None):
 
         if model_input == None:
-           obs = []
-           for i, state in enumerate(self.env.getStates()):
-               item = self.batch[i]
+            obs = []
+            for i, state in enumerate(self.env.getStates()):
+                item = self.batch[i]
 
-               if self.opts.follow_gt_traj:
-                   goal_viewpoint = self.shortest_path_to_gt_traj(state, item['path'])
-               else:
-                   goal_viewpoint = item['path'][-1]
+                if self.opts.follow_gt_traj:
+                    goal_viewpoint = self.shortest_path_to_gt_traj(state, item['path'])
+                else:
+                    goal_viewpoint = item['path'][-1]
 
-               # compute the navigable viewpoints and next ground-truth viewpoint
-               navigable, gt_viewpoint_idx = self._pano_navigable(state, goal_viewpoint)
+                # compute the navigable viewpoints and next ground-truth viewpoint
+                navigable, gt_viewpoint_idx = self._pano_navigable(state, goal_viewpoint)
 
-               # in synthetic data, path_id is unique since we only has 1 instruction per path, we will then use it as 'instr_id'
-               if 'synthetic' in self.splits:
-                   assert len(self.splits) == 1
-                   item['instr_id'] = str(item['path_id'])
+                # in synthetic data, path_id is unique since we only has 1 instruction per path, we will then use it as 'instr_id'
+                if 'synthetic' in self.splits:
+                    assert len(self.splits) == 1
+                    item['instr_id'] = str(item['path_id'])
 
-               obs.append({
-                   'instr_id' : item['instr_id'],
-                   'scan' : state.scanId,
-                   'viewpoint' : state.location.viewpointId,
-                   'viewIndex' : state.viewIndex,
-                   'heading' : state.heading,
-                   'elevation' : state.elevation,
-                   # 'spatial_image_feature': spatial_img_feature,
-                   # 'spatial_depth': spatial_depth,
-                   # 'spatial_obj_detection': spatial_obj_detection,
-                   # 'spatial_n_navigable': spatial_n_navigable,
-                   'step' : state.step,
-                   'navigableLocations': navigable,
-                   'instructions' : item['instructions'],
-                   'teacher': item['path'],
-                   # 'teacher' : self._shortest_path_action(state, item['path'][-1]),
-                   'new_teacher': self.paths[state.scanId][state.location.viewpointId][item['path'][-1]],
-                   'gt_viewpoint_idx': gt_viewpoint_idx
-               })
-               if 'instr_encoding' in item:
-                   obs[-1]['instr_encoding'] = item['instr_encoding']
-           return obs
+                obs.append({
+                    'instr_id' : item['instr_id'],
+                    'scan' : state.scanId,
+                    'viewpoint' : state.location.viewpointId,
+                    'viewIndex' : state.viewIndex,
+                    'heading' : state.heading,
+                    'elevation' : state.elevation,
+                    # 'spatial_image_feature': spatial_img_feature,
+                    # 'spatial_depth': spatial_depth,
+                    # 'spatial_obj_detection': spatial_obj_detection,
+                    # 'spatial_n_navigable': spatial_n_navigable,
+                    'step' : state.step,
+                    'navigableLocations': navigable,
+                    'instructions' : item['instructions'],
+                    'teacher': item['path'],
+                    # 'teacher' : self._shortest_path_action(state, item['path'][-1]),
+                    'new_teacher': self.paths[state.scanId][state.location.viewpointId][item['path'][-1]],
+                    'gt_viewpoint_idx': gt_viewpoint_idx
+                })
+                if 'instr_encoding' in item:
+                    obs[-1]['instr_encoding'] = item['instr_encoding']
+                if 'instr_decoding' in item:
+                    obs[-1]['instr_decoding'] = item['instr_decoding']
+            return obs
 
         else:
-           instruction_datas = model_input
-           obs = []
-           for i,(spatial_img_feature, spatial_depth, spatial_obj_detection, spatial_n_navigable, state) in enumerate(self.env.getStates(instruction_datas=instruction_datas)):
-               item = self.batch[i]
+            instruction_datas = model_input
+            obs = []
+            for i,(spatial_img_feature, spatial_depth, spatial_obj_detection, spatial_n_navigable, state) in enumerate(self.env.getStates(instruction_datas=instruction_datas)):
+                item = self.batch[i]
 
-               if self.opts.follow_gt_traj:
-                   goal_viewpoint = self.shortest_path_to_gt_traj(state, item['path'])
-               else:
-                   goal_viewpoint = item['path'][-1]
+                if self.opts.follow_gt_traj:
+                    goal_viewpoint = self.shortest_path_to_gt_traj(state, item['path'])
+                else:
+                    goal_viewpoint = item['path'][-1]
 
-               # compute the navigable viewpoints and next ground-truth viewpoint
-               navigable, gt_viewpoint_idx = self._pano_navigable(state, goal_viewpoint)
+                # compute the navigable viewpoints and next ground-truth viewpoint
+                navigable, gt_viewpoint_idx = self._pano_navigable(state, goal_viewpoint)
 
-               # in synthetic data, path_id is unique since we only has 1 instruction per path, we will then use it as 'instr_id'
-               if 'synthetic' in self.splits:
-                   assert len(self.splits) == 1
-                   item['instr_id'] = str(item['path_id'])
-         
-               obs.append({
-                   'instr_id' : item['instr_id'],
-                   'scan' : state.scanId,
-                   'viewpoint' : state.location.viewpointId,
-                   'viewIndex' : state.viewIndex,
-                   'heading' : state.heading,
-                   'elevation' : state.elevation,
-                   'spatial_image_feature': spatial_img_feature,
-                   'spatial_depth': spatial_depth,
-                   'spatial_obj_detection': spatial_obj_detection,
-                   'spatial_n_navigable': spatial_n_navigable,
-                   'step' : state.step,
-                   'navigableLocations': navigable,
-                   'instructions' : item['instructions'],
-                   'teacher': item['path'],
-                   # 'teacher' : self._shortest_path_action(state, item['path'][-1]),
-                   'new_teacher': self.paths[state.scanId][state.location.viewpointId][item['path'][-1]],
-                   'gt_viewpoint_idx': gt_viewpoint_idx
-               })
-               if 'instr_encoding' in item:
-                   obs[-1]['instr_encoding'] = item['instr_encoding']
-           return obs
+                # in synthetic data, path_id is unique since we only has 1 instruction per path, we will then use it as 'instr_id'
+                if 'synthetic' in self.splits:
+                    assert len(self.splits) == 1
+                    item['instr_id'] = str(item['path_id'])
+            
+                obs.append({
+                    'instr_id' : item['instr_id'],
+                    'scan' : state.scanId,
+                    'viewpoint' : state.location.viewpointId,
+                    'viewIndex' : state.viewIndex,
+                    'heading' : state.heading,
+                    'elevation' : state.elevation,
+                    'spatial_image_feature': spatial_img_feature,
+                    'spatial_depth': spatial_depth,
+                    'spatial_obj_detection': spatial_obj_detection,
+                    'spatial_n_navigable': spatial_n_navigable,
+                    'step' : state.step,
+                    'navigableLocations': navigable,
+                    'instructions' : item['instructions'],
+                    'teacher': item['path'],
+                    # 'teacher' : self._shortest_path_action(state, item['path'][-1]),
+                    'new_teacher': self.paths[state.scanId][state.location.viewpointId][item['path'][-1]],
+                    'gt_viewpoint_idx': gt_viewpoint_idx
+                })
+                if 'instr_encoding' in item:
+                    obs[-1]['instr_encoding'] = item['instr_encoding']
+                if 'instr_decoding' in item:
+                    obs[-1]['instr_decoding'] = item['instr_decoding']
+            return obs
 
     def reset(self):
         ''' Load a new minibatch / episodes. '''

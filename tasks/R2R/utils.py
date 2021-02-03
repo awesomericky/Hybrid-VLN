@@ -28,7 +28,9 @@ def setup(opts, seed=1):
     # torch.cuda.manual_seed_all(seed)  ## if multi-gpu
     # torch.backends.cudnn.deterministic = True
     # torch.backends.cudnn.benchmark = False
-    torch.backends.cudnn.benchmark = True
+    # torch.backends.cudnn.benchmark = True
+    torch.backends.cudnn.benchmark=False
+    torch.backends.cudnn.deterministic=True
     np.random.seed(seed)
     random.seed(seed)
 
@@ -140,10 +142,11 @@ class Tokenizer(object):
             if ix == self.word_to_index['<PAD>']:
                 break
             else:
-                sentence.append(self.vocab[ix])
+                sentence.append(self.vocab[int(ix)])
         if self.reversed:
             sentence = sentence[::-1]
-        return " ".join(sentence)
+        # return " ".join(sentence)
+        return sentence
 
 
 def build_vocab(splits=['train'], min_count=5, start_vocab=base_vocab):

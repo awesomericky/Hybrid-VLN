@@ -10,6 +10,8 @@ import torch.nn.functional as F
 
 from utils import padding_idx
 
+torch.autograd.set_detect_anomaly = True
+
 class PanoBaseAgent(object):
     """ Base class for an R2R agent with panoramic view and action. """
 
@@ -293,7 +295,7 @@ class PanoSeq2SeqAgent(PanoBaseAgent):
         instructions = []
 
         for ob in obs:
-           instructions.append(ob['instructions'])
+           instructions.append(ob['instr_decoding'])
 
         batch_size = len(obs)
 
@@ -309,12 +311,8 @@ class PanoSeq2SeqAgent(PanoBaseAgent):
 
         loss = 0
         for step in range(self.opts.max_episode_len):
-            print(step)
-
             weighted_ctx, ctx_attn = self.model((h_t, ctx), ctx_mask=ctx_mask, input_type='ctx')
 
-            ###1000 #500 #500 # 500
-            pdb.set_trace()
             instruction_datas = [instructions, ctx_attn]
             obs = self.env._get_obs(model_input=instruction_datas)
 
@@ -322,13 +320,11 @@ class PanoSeq2SeqAgent(PanoBaseAgent):
             viewpoints_indices = super(PanoSeq2SeqAgent, self).pano_navigable_feat(obs, ended)
             viewpoints, navigable_index, target_index = viewpoints_indices
 
-            #500 #0 #0
             img_feat = img_feat.to(self.device)
             depth_feat = depth_feat.to(self.device)
             obj_detection_feat = obj_detection_feat.to(self.device)
             num_navigable_feat = num_navigable_feat.to(self.device)
             target = torch.LongTensor(target_index).to(self.device)
-            pdb.set_trace()
 
             # forward pass the network
             h_t, c_t, weighted_ctx, img_attn, low_visual_feat, ctx_attn, logit, value, navigable_mask = self.model(
@@ -357,6 +353,7 @@ class PanoSeq2SeqAgent(PanoBaseAgent):
                             1 - self.opts.value_loss_weight) * current_logit_loss
             else:
                 current_loss = torch.zeros(1)  # during testing where we do not have ground-truth, loss is simply 0
+            loss += current_loss
 
             next_viewpoints, next_headings, next_viewpoint_idx, ended = super(PanoSeq2SeqAgent, self)._next_viewpoint(
                 obs, viewpoints, navigable_index, action, ended, self.opts.max_navigable)
