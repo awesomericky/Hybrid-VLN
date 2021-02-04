@@ -28,10 +28,13 @@ class HybridAgent(nn.Module):
 
         assert training_state in [1, 2, 3]
         if training_state == 1:
+            # Only using high level visual feature
             self.hybrid_weight = torch.tensor([1, 0], dtype=torch.float32, requires_grad=True, device=self.device)
         elif training_state == 2:
+            # Only using low level visual feature
             self.hybrid_weight = torch.tensor([0, 1], dtype=torch.float32, requires_grad=True, device=self.device)
         else:  # training_state == 3
+            # Using both high level and low level visual feature
             self.hybrid_weight = torch.tensor([0.5, 0.5], dtype=torch.float32, requires_grad=True, device=self.device)
 
         self.h0_t_ctx_fc = nn.Linear(rnn_hidden_size, rnn_hidden_size, bias=fc_bias)
@@ -258,19 +261,18 @@ class LowLevelModel(nn.Module):
             image_w = 160
             image_h = 120
 
-            if self.total_visual_feat is None
-                self.total_visual_feat = torch.zeros(batch_size, 1, image_h*3, image_w*12, requires_grad=False).cuda()
-                self.middle_total_feat_1 = torch.zeros((batch_size, 2*36, image_h, image_w), requires_grad=False).cuda()
-                self.middle_total_feat_2 = torch.zeros((batch_size, 2*36, image_h, image_w), requires_grad=False).cuda()
-                self.tensor_mask = torch.zeros(batch_size, self.max_navigable, requires_grad=False).cuda()
+            self.total_visual_feat = torch.zeros(batch_size, 1, image_h*3, image_w*12, requires_grad=False).to(device)
+            self.middle_total_feat_1 = torch.zeros((batch_size, 2*36, image_h, image_w), requires_grad=False).to(device)
+            self.middle_total_feat_2 = torch.zeros((batch_size, 2*36, image_h, image_w), requires_grad=False).to(device)
+            # self.tensor_mask = torch.zeros(batch_size, self.max_navigable, requires_grad=False).cuda()
 
             # navigable_mask = create_new_mask(batch_size, self.max_navigable, navigable_index, self.tensor_mask)
             navigable_mask = create_new_mask(batch_size, self.max_navigable, navigable_index)
             num_navigable_attention = F.softmax(num_navigable_feat.float(), dim=1)  # [b, 36]
 
             for i in range(self.max_navigable):
-                self.middle_total_feat_1[:, 2*i, :, :] = depth_feat[0]
-                self.middle_total_feat_1[:, 2*i+1, :, :] = depth_feat[1]
+                self.middle_total_feat_1[:, 2*i, :, :] = depth_feat[0][:, i, :, :]
+                self.middle_total_feat_1[:, 2*i+1, :, :] = depth_feat[1][:, i, :, :]
             total_depth_feat = self.conv1(self.middle_total_feat_1)  # [b, 36, h, w]
 
             for i in range(self.max_navigable):

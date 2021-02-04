@@ -1,0 +1,1 @@
+{"iter": 10, "_step": 4, "_runtime": 149, "_timestamp": 1612462193, "train/loss_train": 27.10371971130371, "train/dist_from_goal": 9.155255846336868, "train/movements": 9.34375, "train/value_loss": 2.029858350753784}

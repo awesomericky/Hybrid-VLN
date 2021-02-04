@@ -96,6 +96,8 @@ parser.add_argument('--fix_action_ended', default=1, type=int,
                     help='Action set to 0 if ended. This prevent the model keep getting loss from logit after ended')
 parser.add_argument('--monitor_sigmoid', default=0, type=int,
                     help='Use Sigmoid function for progress monitor instead of Tanh')
+parser.add_argument('--training_state', default=3, type=int,
+                    help='[1, 2, 3] available. (1: High, 2: Low, 3: Both)')
 
 # Image context
 parser.add_argument('--img_feat_input_dim', default=2048, type=int,
@@ -183,7 +185,7 @@ def main(opts):
     # create policy model
     policy_model_kwargs = {
         'batch_size': opts.batch_size,
-        'training_state': 3,
+        'training_state': opts.training_state,
         'opts': opts,
         'img_fc_dim': opts.img_fc_dim,
         'img_fc_use_batchnorm': opts.img_fc_use_batchnorm == 1,
@@ -295,6 +297,7 @@ def main(opts):
     tb_logger = set_tb_logger(opts.log_dir, opts.exp_name, opts.resume)
 
     wandb_config = {'model':opts.arch,
+                    'training_state':opts.training_state,
                     'exp_name':opts.exp_name,
                     'learning_rate':opts.learning_rate,
                     'batch_size':opts.batch_size,

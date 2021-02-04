@@ -94,8 +94,9 @@ def load_features(img_feature_store, depth_feature_store, object_feature_store, 
             for viewpointId_file in viewpointId_files:
                 viewpointId = viewpointId_file.split('.')[0].split('_')[0]
                 viewpoint_idx = viewpointId_file.split('.')[0].split('_')[1]
+                file_name = join(join(object_feature_store, scanId), viewpointId_file)
 
-                with open(viewpointId_file, 'rb') as f:
+                with open(file_name, 'rb') as f:
                     object_detection_result = pickle.load(f)
                 obj_features['{}_{}_{}'.format(scanId, viewpointId, viewpoint_idx)] = object_detection_result  # [(obj(=str), obj_bbox(=array)), ...]
     else:
@@ -219,7 +220,7 @@ class EnvBatch():
                 attn_words.append(instruction[instruction_attn_indice])
 
             for i in range(36):
-                object_detection_result = self.features['obj_features'][long_id + '_' + i]
+                object_detection_result = self.features['obj_features'][long_id + '_' + str(i)]
                 
                 detected_objects = []
                 detected_objects_bboxs = []
