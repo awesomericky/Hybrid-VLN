@@ -11,6 +11,7 @@ import json
 import random
 import networkx as nx
 from os.path import join
+from os import listdir
 import pickle
 import torch
 from scipy.special import softmax
@@ -24,16 +25,16 @@ SAFE_DEPTH_THRESHOLD = 5*4000
 INSTRUCTION_ATTENTION_THRESHOLD = 5
 
 
-def load_features(feature_store):
+def load_features(img_feature_store, depth_feature_store, object_feature_store, num_navigable_feature_store, max_navigable):
     def _make_id(scanId, viewpointId):
         return scanId + '_' + viewpointId
 
-    # if the tsv file for image features is provided
-    if feature_store:
+    # Load image features
+    if img_feature_store:
         tsv_fieldnames = ['scanId', 'viewpointId', 'image_w', 'image_h', 'vfov', 'features']
-        features = {}
-        with open(feature_store, "r") as tsv_in_file:
-            print('Reading image features file %s' % feature_store)
+        img_features = {}
+        with open(img_feature_store, "r") as tsv_in_file:
+            print('Reading image features file %s' % img_feature_store)
             reader = list(csv.DictReader(tsv_in_file, delimiter='\t', fieldnames=tsv_fieldnames))
             total_length = len(reader)
 
@@ -43,23 +44,79 @@ def load_features(feature_store):
                 # image_w = int(item['image_w'])
                 # vfov = int(item['vfov'])
                 long_id = _make_id(item['scanId'], item['viewpointId'])
-                features[long_id] = np.frombuffer(base64.b64decode(item['features']),
+                img_features[long_id] = np.frombuffer(base64.b64decode(item['features']),
                                                        dtype=np.float32).reshape((36, 2048))
                 # print_progress(i + 1, total_length, prefix='Progress:',
                 #                suffix='Complete', bar_length=50)
     else:
-        print('Image features not provided')
-        features = None
+        raise ValueError('Image features not provided')
+        # print('Image features not provided')
+        # features = None
         # image_w = 640
         # image_h = 480
         # vfov = 60
-
+    
     # downsize image (downsized by 4)
     image_w = 160  # 640/4
     image_h = 120  # 480/4
     vfov = 60
+    
+    # Load depth features
+    # Way to get data in code: depth[scanId_viewpointId]
+    if depth_feature_store:
+        print('Reading depth features from {}'.format(depth_feature_store))
+        print('Loading depth features ..')
+        depth_features = {}
+        depth_tmp_1 = np.zeros((max_navigable, image_h, image_w))
+        scanIds = listdir(depth_feature_store)
+        for scanId in scanIds:
+            viewpointId_files = listdir(join(depth_feature_store, scanId))
+            for viewpointId_file in viewpointId_files:
+                viewpointId = viewpointId_file.split('.')[0]
+                depth_tmp_2 = np.load(join(join(depth_feature_store, scanId), viewpointId_file))['depth'].squeeze(0)  # (image_h*3, image_w*12)
+                for i in range(max_navigable):
+                    y = i // 12
+                    x = i % 12
+                    depth_tmp_1[i, :, :] = depth_tmp_2[image_h*(2-y):image_h*(3-y), image_w*x:image_w*(x+1)]
+                depth_features['{}_{}'.format(scanId, viewpointId)] = depth_tmp_1  # (max_navigable, image_h, image_w)
+    else:
+        raise ValueError('Depth features not provided')
 
-    return features, (image_w, image_h, vfov)
+    # Load object features
+    if object_feature_store:
+        print('Reading object features from {}'.format(object_feature_store))
+        print('Loading object features ..')
+        obj_features = {}
+        scanIds = listdir(object_feature_store)
+        for scanId in scanIds:
+            viewpointId_files = listdir(join(object_feature_store, scanId))
+            for viewpointId_file in viewpointId_files:
+                viewpointId = viewpointId_file.split('.')[0].split('_')[0]
+                viewpoint_idx = viewpointId_file.split('.')[0].split('_')[1]
+
+                with open(viewpointId_file, 'rb') as f:
+                    object_detection_result = pickle.load(f)
+                obj_features['{}_{}_{}'.format(scanId, viewpointId, viewpoint_idx)] = object_detection_result  # [(obj(=str), obj_bbox(=array)), ...]
+    else:
+        raise ValueError('Depth features not provided')
+    
+    # Load number of navigable features
+    if num_navigable_feature_store:
+        print('Reading number of navigable features from {}'.format(num_navigable_feature_store))
+        print('Loading number of navigable features ..')
+        num_navigable_features = {}
+        scanIds = listdir(object_feature_store)
+        for scanId in scanIds:
+            viewpointId_files = listdir(join(object_feature_store, scanId))
+            for viewpointId_file in viewpointId_files:
+                viewpointId = viewpointId_file.split('.')[0]
+                naviagble_feature = np.load(join(join(num_navigable_feature_store, scanId), viewpointId_file))['navigable'].squeeze(0)
+                navigable_feature = navigable_feature
+                # obj_features['{}_{}_{}'.format(scanId, viewpointId, viewpoint_idx)] = object_detection_result  # [(obj(=str), obj_bbox(=array)), ...]
+    else:
+        raise ValueError('Depth features not provided')
+
+    return img_features, (image_w, image_h, vfov)
 
 class EnvBatch():
     ''' A simple wrapper for a batch of MatterSim environments,

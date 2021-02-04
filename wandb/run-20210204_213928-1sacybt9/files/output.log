@@ -1,0 +1,19 @@
+Training on train env ...
+Traceback (most recent call last):
+  File "tasks/R2R/main.py", line 340, in <module>
+    main(opts)
+  File "tasks/R2R/main.py", line 305, in main
+    trainer.train(epoch, train_env, tb_logger)
+  File "/disk2/yunhokim/Hybrid-VLN/tasks/R2R/trainer.py", line 47, in train
+    loss, traj = self.agent.rollout_hybrid()
+  File "/disk2/yunhokim/Hybrid-VLN/tasks/R2R/agents/pano_agent.py", line 332, in rollout_hybrid
+    pre_action, h_t, c_t, weighted_ctx, ctx_attn),  navigable_index=navigable_index, ctx_mask=ctx_mask)
+  File "/home/intern/miniconda3/envs/r2r_v2/lib/python3.6/site-packages/torch/nn/modules/module.py", line 489, in __call__
+    result = self.forward(*input, **kwargs)
+  File "/disk2/yunhokim/Hybrid-VLN/tasks/R2R/models/policy_model.py", line 87, in forward
+    = self.low_model((depth_feat, obj_detection_feat, num_navigable_feat, pre_action_feat, h_0, c_0, weighted_ctx, navigable_index), input_type='history')
+  File "/home/intern/miniconda3/envs/r2r_v2/lib/python3.6/site-packages/torch/nn/modules/module.py", line 489, in __call__
+    result = self.forward(*input, **kwargs)
+  File "/disk2/yunhokim/Hybrid-VLN/tasks/R2R/models/policy_model.py", line 266, in forward
+    self.middle_total_feat_2 = torch.zeros((batch_size, 2*36, image_h, image_w), requires_grad=False).cuda()
+RuntimeError: CUDA out of memory. Tried to allocate 337.50 MiB (GPU 0; 11.91 GiB total capacity; 10.88 GiB already allocated; 267.06 MiB free; 113.27 MiB cached)

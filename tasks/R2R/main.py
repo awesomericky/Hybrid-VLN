@@ -29,7 +29,16 @@ parser.add_argument('--trainval_vocab',
                     type=str, help='path to training and validation vocab')
 parser.add_argument('--img_feat_dir',
                     default='preprocessed_data/img_features/ResNet-152-imagenet.tsv',
-                    type=str, help='path to pre-cached image features')
+                    type=str, help='path to preprocessed image features')
+parser.add_argument('--depth_feat_dir',
+                    default='preprocessed_data/depth_result',
+                    type=str, help='path to preprocessed depth features')
+parser.add_argument('--obj_feat_dir',
+                    default='preprocessed_data/obj_detection_result',
+                    type=str, help='path to preprocessed object detection features')
+parser.add_argument('--num_navigable_feat_dir',
+                    default='preprocessed_data/navigable_result',
+                    type=str, help='path to preprocessed number of navigable features')
 
 # Training options
 parser.add_argument('--start_epoch', default=1, type=int)
@@ -207,7 +216,7 @@ def main(opts):
     if opts.exp_name_secondary:
         opts.exp_name += opts.exp_name_secondary
 
-    feature, img_spec = load_features(opts.img_feat_dir)
+    feature, img_spec = load_features(opts.img_feat_dir, opts.depth_feat_dir, opts.obj_feat_dir, opts.num_navigable_feat_dir, opts.max_navigable)
 
     if opts.test_submission:
         assert opts.resume, 'The model was not resumed before running for submission.'

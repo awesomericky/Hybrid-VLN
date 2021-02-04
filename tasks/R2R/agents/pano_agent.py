@@ -79,7 +79,7 @@ class PanoBaseAgent(object):
 
         for i, ob in enumerate(obs):
             if action[i] < max_navigable:
-                next_viewpoint_idx.append(action[i])
+                next_viewpoint_idx.append(int(action[i]))
            
                 curr_navigable_index = np.asarray(navigable_index[i])
                 corresponding_index = list(np.where(curr_navigable_index == action[i].numpy())[0])
