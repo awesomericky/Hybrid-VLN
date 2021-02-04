@@ -62,7 +62,7 @@ def load_features(img_feature_store, depth_feature_store, object_feature_store, 
     vfov = 60
     
     # Load depth features
-    # Way to get data in code: depth[scanId_viewpointId]
+    # Way to get data in code: depth_features[scanId_viewpointId]
     if depth_feature_store:
         print('Reading depth features from {}'.format(depth_feature_store))
         print('Loading depth features ..')
@@ -78,11 +78,12 @@ def load_features(img_feature_store, depth_feature_store, object_feature_store, 
                     y = i // 12
                     x = i % 12
                     depth_tmp_1[i, :, :] = depth_tmp_2[image_h*(2-y):image_h*(3-y), image_w*x:image_w*(x+1)]
-                depth_features['{}_{}'.format(scanId, viewpointId)] = depth_tmp_1  # (max_navigable, image_h, image_w)
+                depth_features['{}_{}'.format(scanId, viewpointId)] = depth_tmp_1  # (36, image_h, image_w)
     else:
         raise ValueError('Depth features not provided')
 
     # Load object features
+    # Way to get data in code: obj_features[scanId_viewpointId_(viewpoint_idx)]
     if object_feature_store:
         print('Reading object features from {}'.format(object_feature_store))
         print('Loading object features ..')
@@ -98,25 +99,26 @@ def load_features(img_feature_store, depth_feature_store, object_feature_store, 
                     object_detection_result = pickle.load(f)
                 obj_features['{}_{}_{}'.format(scanId, viewpointId, viewpoint_idx)] = object_detection_result  # [(obj(=str), obj_bbox(=array)), ...]
     else:
-        raise ValueError('Depth features not provided')
+        raise ValueError('Object features not provided')
     
     # Load number of navigable features
+    # Way to get data in code: num_navigable_features[scanId_viewpointId]
     if num_navigable_feature_store:
         print('Reading number of navigable features from {}'.format(num_navigable_feature_store))
         print('Loading number of navigable features ..')
         num_navigable_features = {}
-        scanIds = listdir(object_feature_store)
+        scanIds = listdir(num_navigable_feature_store)
         for scanId in scanIds:
-            viewpointId_files = listdir(join(object_feature_store, scanId))
+            viewpointId_files = listdir(join(num_navigable_feature_store, scanId))
             for viewpointId_file in viewpointId_files:
                 viewpointId = viewpointId_file.split('.')[0]
-                naviagble_feature = np.load(join(join(num_navigable_feature_store, scanId), viewpointId_file))['navigable'].squeeze(0)
-                navigable_feature = navigable_feature
-                # obj_features['{}_{}_{}'.format(scanId, viewpointId, viewpoint_idx)] = object_detection_result  # [(obj(=str), obj_bbox(=array)), ...]
+                navigable_feature = np.load(join(join(num_navigable_feature_store, scanId), viewpointId_file))['navigable'].squeeze(0)  # (3, 12)
+                navigable_feature = np.flip(navigable_feature, 0).reshape(-1)
+                num_navigable_features['{}_{}'.format(scanId, viewpointId)] = navigable_feature  # (36, ) // num_navigable in the order of 0~35 index
     else:
-        raise ValueError('Depth features not provided')
+        raise ValueError('Number of navigable features not provided')
 
-    return img_features, (image_w, image_h, vfov)
+    return img_features, depth_features, obj_features, num_navigable_features, (image_w, image_h, vfov)
 
 class EnvBatch():
     ''' A simple wrapper for a batch of MatterSim environments,
@@ -155,13 +157,12 @@ class EnvBatch():
 
         1) State (type & dimension)
         - ResNet image(rgb) feature : (36, feature_dim)
-        - Depth (normalized free space) : (2, single_view_height * 3, single_view_width * 12)
-        - Object detection : (1, single_view_height * 3, single_view_width * 12)
-        - Number of navigable locations (normalized) : (1, 3, 12)
+        - Depth (normalized_raw_depth) : (36, image_h, image_w)
+        - Depth (normalized_clip_depth) : (36, image_h, image_w)
+        - Object detection : (36, image_h, image_w)
+        - Number of navigable locations (not normalized) : (36, )
 
-        (*1st channel in depth: normalized_raw_depth, 2nd channel in depth: normalized_clip_depth)
-
-        2) Spatial meaning in state dimention
+        2) Spatial meaning in Matterport3D simulator
          ㅡ                                                 ㅡ
         |   24  25  26  27  28  29  30  31  32  33  34  35   |   (looking up)
         |                                                    |
@@ -175,10 +176,10 @@ class EnvBatch():
         total_feature_states = []
         states = self.sim.getState()
         if instruction_datas == None:
-           for state in states:
-              total_feature_states.append(state)
-           
-           return total_feature_states
+            for state in states:
+                total_feature_states.append(state)
+
+            return total_feature_states
 
         for state in states:
             scanId = state.scanId
@@ -186,28 +187,25 @@ class EnvBatch():
 
             # ResNet image(rgb) feature
             long_id = self._make_id(scanId, viewpointId)
-            if self.features:
-                spatial_img_feature = self.features[long_id]
+            if self.features['img_features']:
+                spatial_img_feature = self.features['img_features'][long_id]  # (36, img_feature_dim)
             else:
                 spatial_img_feature = None
             
             # Depth (normalized free space)
-            spatial_depth = np.zeros((2, self.image_h*3, self.image_w*12), dtype=np.float32)
-            file_name = viewpointId + '.npz'
-            file_name = join(join(PREPROCESSED_DATA_FOLDER, 'depth_result'), join(scanId, file_name))
+            spatial_depth = {}
 
-            raw_depth = np.load(file_name)['depth'] # (1, 120*3, 160*12)
+            raw_depth = self.features['depth_features'][long_id] # (36, image_h, image_w)
             normalized_raw_depth = raw_depth/np.max(raw_depth)
             clip_depth = np.clip(raw_depth, a_min=0, a_max=SAFE_DEPTH_THRESHOLD)
             normalized_clip_depth = clip_depth/np.max(clip_depth)
 
-            spatial_depth[0, :, :] = normalized_raw_depth
-            spatial_depth[1, :, :] = normalized_clip_depth
+            spatial_depth['normalized_raw_depth'] = normalized_raw_depth
+            spatial_depth['normalized_clip_depth'] = normalized_clip_depth
 
             # Object detection
-            spatial_obj_detection = np.zeros((1, self.image_h*3, self.image_w*12), dtype=np.float32)
+            spatial_obj_detection = np.zeros((36, self.image_h, self.image_w), dtype=np.float32)
      
-            
             # instruction_data = (instruction, instruction_attn) # 'instruction' type: list, 'instruction_attn' type: tensor
             instruction = instruction_datas[0][states.index(state)]
             instruction_attn = instruction_datas[1][states.index(state), :]
@@ -221,11 +219,7 @@ class EnvBatch():
                 attn_words.append(instruction[instruction_attn_indice])
 
             for i in range(36):
-                file_name = viewpointId + '_' + str(i) + '.pickle'
-                file_name = join(join(PREPROCESSED_DATA_FOLDER, 'obj_detection_result'), join(scanId, file_name))
-
-                with open(file_name, 'rb') as f:
-                    object_detection_result = pickle.load(f)
+                object_detection_result = self.features['obj_features'][long_id + '_' + i]
                 
                 detected_objects = []
                 detected_objects_bboxs = []
@@ -261,14 +255,10 @@ class EnvBatch():
                     
                     final_partial_obj_detection = np.sum(partial_obj_detection*obj_weight, axis=0)
                 
-                y = i // 12
-                x = i % 12
-                spatial_obj_detection[0, self.image_h*(2-y):self.image_h*(3-y), self.image_w*x:self.image_w*(x+1)] = final_partial_obj_detection
+                spatial_obj_detection[i, :, :] = final_partial_obj_detection
             
             # Number of navigable locations # (normalized)
-            file_name = viewpointId + '.npz'
-            file_name = join(join(PREPROCESSED_DATA_FOLDER, 'navigable_result'), join(scanId, file_name))
-            spatial_n_navigable = np.load(file_name)['navigable']  # (1, 3, 12)
+            spatial_n_navigable = self.features['num_navigable_features'][long_id]
             # spatial_n_navigable = spatial_n_navigable/np.max(spatial_n_navigable)
             
             total_feature_states.append((spatial_img_feature, spatial_depth, spatial_obj_detection, spatial_n_navigable, state))

@@ -101,27 +101,33 @@ class PanoBaseAgent(object):
         [Feature dimension]
 
         img_feat: batch x 36 x img_feature_size
-        depth_feat: batch x 2 x (image_h*3) x (image_w*12)
-        obj_detection_feat: batch x 1 x (image_h*3) x (image_w*12)
-        num_navigable_feat: batch x 3 x 12
+        normalized_raw_depth_feat: batch x 36 x image_h x image_w
+        normalized_clip_depth_feat: batch x 36 x image_h x image_w
+        obj_detection_feat: batch x 36 x image_h x image_w
+        num_navigable_feat: batch x 36
         """
 
         img_feat_shape = obs[0]['spatial_image_feature'].shape
-        depth_feat_shape = obs[0]['spatial_depth'].shape
+        normalized_raw_depth_feat_shape = obs[0]['spatial_depth']['normalized_raw_depth'].shape
+        normalized_clip_depth_feat_shape = obs[0]['spatial_depth']['normalized_clip_depth'].shape
         obj_detection_feat_shape = obs[0]['spatial_obj_detection'].shape
         num_navigable_feat_shape = obs[0]['spatial_n_navigable'].shape
 
         img_feat = torch.zeros(len(obs), img_feat_shape[0], img_feat_shape[1])
-        depth_feat = torch.zeros(len(obs), depth_feat_shape[0], depth_feat_shape[1], depth_feat_shape[2])
+        normalized_raw_depth_feat = torch.zeros(len(obs), normalized_raw_depth_feat_shape[0], normalized_raw_depth_feat_shape[1], normalized_raw_depth_feat_shape[2])
+        normalized_clip_depth_feat = torch.zeros(len(obs), normalized_clip_depth_feat_shape[0], normalized_clip_depth_feat_shape[1], normalized_clip_depth_feat_shape[2])
         obj_detection_feat = torch.zeros(len(obs), obj_detection_feat_shape[0], obj_detection_feat_shape[1], obj_detection_feat_shape[2])
-        num_navigable_feat = torch.zeros(len(obs), num_navigable_feat_shape[1], num_navigable_feat_shape[2])
+        num_navigable_feat = torch.zeros(len(obs), num_navigable_feat_shape[0])
 
         navigable_feat_index, target_index, viewpoints = [], [], []
         for i, ob in enumerate(obs):
             img_feat[i, :] = torch.from_numpy(ob['spatial_image_feature'])
-            depth_feat[i, :] = torch.from_numpy(ob['spatial_depth'])
+            normalized_raw_depth_feat[i, :] = torch.from_numpy(ob['spatial_depth']['normalized_raw_depth'])
+            normalized_clip_depth_feat[i, :] = torch.from_numpy(ob['spatial_depth']['normalized_clip_depth'])
             obj_detection_feat[i, :] = torch.from_numpy(ob['spatial_obj_detection'])
             num_navigable_feat[i, :] = torch.from_numpy(ob['spatial_n_navigable'])
+
+            depth_feat = [normalized_raw_depth_feat, normalized_clip_depth_feat]
 
             index_list = []
             viewpoints_tmp = []
@@ -321,7 +327,8 @@ class PanoSeq2SeqAgent(PanoBaseAgent):
             viewpoints, navigable_index, target_index = viewpoints_indices
 
             img_feat = img_feat.to(self.device)
-            depth_feat = depth_feat.to(self.device)
+            depth_feat[0] = depth_feat[0].to(self.device)  # normalized_raw_depth_feat
+            depth_feat[1] = depth_feat[1].to(self.device)  # normalized_clip_depth_feat
             obj_detection_feat = obj_detection_feat.to(self.device)
             num_navigable_feat = num_navigable_feat.to(self.device)
             target = torch.LongTensor(target_index).to(self.device)

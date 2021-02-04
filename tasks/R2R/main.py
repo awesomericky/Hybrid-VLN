@@ -153,6 +153,7 @@ parser.add_argument('--log_dir',
 def main(opts):
 
     # set manual_seed and build vocab
+    opts.max_navigable = 36 # MUST!!
     setup(opts, opts.seed)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -216,7 +217,14 @@ def main(opts):
     if opts.exp_name_secondary:
         opts.exp_name += opts.exp_name_secondary
 
-    feature, img_spec = load_features(opts.img_feat_dir, opts.depth_feat_dir, opts.obj_feat_dir, opts.num_navigable_feat_dir, opts.max_navigable)
+    img_features, depth_features, obj_features, num_navigable_features, img_spec \
+         = load_features(opts.img_feat_dir, opts.depth_feat_dir, opts.obj_feat_dir, opts.num_navigable_feat_dir, opts.max_navigable)
+    
+    feature = {}
+    feature['img_features'] = img_features
+    feature['depth_features'] = depth_features
+    feature['obj_features'] = obj_features
+    feature['num_navigable_features'] = num_navigable_features
 
     if opts.test_submission:
         assert opts.resume, 'The model was not resumed before running for submission.'

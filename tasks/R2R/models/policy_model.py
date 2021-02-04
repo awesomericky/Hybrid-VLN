@@ -5,6 +5,8 @@ import pdb
 
 from models.modules import build_mlp, SoftAttention, PositionalEncoding, create_new_mask, proj_masking, Dynamic_conv2d
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 class HybridAgent(nn.Module):
     """ An unrolled LSTM with attention over instructions for decoding navigation actions. """
 
@@ -163,9 +165,8 @@ class HighLevelModel(nn.Module):
             img_feat = img_feat * num_navigable_attention.unsqueeze(-1).expand_as(img_feat)
 
             # 0~35: navigable location in corresponding heading / 36: stop
-            # self.tensor_mask -= self.tensor_mask
-            self.tensor_mask = torch.zeros(batch_size, self.max_navigable).to(self.device)
-            navigable_mask = create_new_mask(batch_size, self.max_navigable, navigable_index, self.tensor_mask)  # batch_size x self.max_navigable
+            # self.tensor_mask = torch.zeros(batch_size, self.max_navigable).to(self.device)
+            navigable_mask = create_new_mask(batch_size, self.max_navigable, navigable_index)  # batch_size x self.max_navigable
             proj_navigable_feat = proj_masking(img_feat, self.proj_navigable_mlp, navigable_mask)
             proj_navigable_feat = torch.cat((proj_navigable_feat, self.stop_feat), 1)
             
@@ -222,10 +223,10 @@ class LowLevelModel(nn.Module):
         self.num_predefined_action = 1
         self.logit_fc = nn.Linear(max_navigable, max_navigable + self.num_predefined_action, bias=fc_bias)
         
-        self.total_visual_feat = None
         self.middle_total_feat_1 = None
         self.middle_total_feat_2 = None
-        self.tensor_mask = None
+        self.total_visual_feat = None
+        # self.tensor_mask = None
     
     def conv2(self, model_input):
         output = self.conv2_1(model_input)
@@ -241,10 +242,11 @@ class LowLevelModel(nn.Module):
         """ 
         [Model input]
 
-        depth_feat: batch x 2 x (image_h*3) x (image_w*12)
-        obj_detection_feat: batch x 1 x (image_h*3) x (image_w*12)
-        num_navigable_feat: batch x 3 x 12
-        pre_action_feat: previous attended action feature, batch x action_feature_size
+        depth_feat[0](= normalized_raw_depth_feat): batch x 36 x image_h x image_w
+        depth_feat[1](= normalized_clip_depth_feat): batch x 36 x image_h x image_w
+        obj_detection_feat: batch x 36 x image_h x image_w
+        num_navigable_feat: batch x 36
+        pre_action_feat(= previous attended action feature): batch x action_feature_size
         weighted_ctx: batch x rnn_hiddin_size
         """
         assert input_type in ['history', 'action']
@@ -252,38 +254,29 @@ class LowLevelModel(nn.Module):
         if input_type == 'history':
             depth_feat, obj_detection_feat, num_navigable_feat, pre_action_feat, h_0, c_0, weighted_ctx, navigable_index = model_input
 
-            batch_size = depth_feat.shape[0]
+            batch_size = depth_feat[0].shape[0]
             image_w = 160
             image_h = 120
 
-            # if self.total_visual_feat is None and self.middle_total_feat_1 is None and self.middle_total_feat_2 is None and self.tensor_mask is None:
-                # self.total_visual_feat = torch.zeros(batch_size, 1, image_h*3, image_w*12, requires_grad=False).cuda()
-                # self.middle_total_feat_1 = torch.zeros((batch_size, 2*36, image_h, image_w), requires_grad=False).cuda()
-                # self.middle_total_feat_2 = torch.zeros((batch_size, 2*36, image_h, image_w), requires_grad=False).cuda()
-                # self.tensor_mask = torch.zeros(batch_size, self.max_navigable, requires_grad=False).cuda()
-            self.total_visual_feat = torch.zeros(batch_size, 1, image_h*3, image_w*12, requires_grad=False).cuda()
-            self.middle_total_feat_1 = torch.zeros((batch_size, 2*36, image_h, image_w), requires_grad=False).cuda()
-            self.middle_total_feat_2 = torch.zeros((batch_size, 2*36, image_h, image_w), requires_grad=False).cuda()
-            self.tensor_mask = torch.zeros(batch_size, self.max_navigable, requires_grad=False).cuda()
+            if self.total_visual_feat is None
+                self.total_visual_feat = torch.zeros(batch_size, 1, image_h*3, image_w*12, requires_grad=False).cuda()
+                self.middle_total_feat_1 = torch.zeros((batch_size, 2*36, image_h, image_w), requires_grad=False).cuda()
+                self.middle_total_feat_2 = torch.zeros((batch_size, 2*36, image_h, image_w), requires_grad=False).cuda()
+                self.tensor_mask = torch.zeros(batch_size, self.max_navigable, requires_grad=False).cuda()
 
-            # self.tensor_mask -= self.tensor_mask
-            navigable_mask = create_new_mask(batch_size, self.max_navigable, navigable_index, self.tensor_mask)
-            num_navigable_attention = num_navigable_feat.view(batch_size, -1)
-            num_navigable_attention = F.softmax(num_navigable_attention.float(), dim=1)  # [b, 36]
+            # navigable_mask = create_new_mask(batch_size, self.max_navigable, navigable_index, self.tensor_mask)
+            navigable_mask = create_new_mask(batch_size, self.max_navigable, navigable_index)
+            num_navigable_attention = F.softmax(num_navigable_feat.float(), dim=1)  # [b, 36]
 
             for i in range(self.max_navigable):
-                y = i // 12
-                x = i % 12
-                self.middle_total_feat_1[:, 2*i:2*(i+1), :, :] \
-                    = depth_feat[:, :, image_h*(2-y):image_h*(3-y), image_w*x:image_w*(x+1)]  # [b, 2, h, w]
+                self.middle_total_feat_1[:, 2*i, :, :] = depth_feat[0]
+                self.middle_total_feat_1[:, 2*i+1, :, :] = depth_feat[1]
             total_depth_feat = self.conv1(self.middle_total_feat_1)  # [b, 36, h, w]
 
             for i in range(self.max_navigable):
-                y = i // 12
-                x = i % 12
                 partial_num_navigable_attention = num_navigable_attention[:, i].unsqueeze(-1).unsqueeze(-1).expand(-1, image_h, image_w)
                 partial_depth_feat = total_depth_feat[:, i, :, :] * partial_num_navigable_attention # [b, h, w]
-                partial_obj_detection_feat = obj_detection_feat[:, :, image_h*(2-y):image_h*(3-y), image_w*x:image_w*(x+1)].squeeze(1) * partial_num_navigable_attention # [b, h, w]
+                partial_obj_detection_feat = obj_detection_feat[:, i, :, :] * partial_num_navigable_attention # [b, h, w]
                 self.middle_total_feat_2[:, 2*i, :, :] = partial_depth_feat
                 self.middle_total_feat_2[:, 2*i+1, :, :] = partial_obj_detection_feat
             total_visual_feat, dynamic_filter_attention = self.dynamic_conv2d(weighted_ctx, self.middle_total_feat_2)
@@ -292,29 +285,6 @@ class LowLevelModel(nn.Module):
                 y = i // 12
                 x = i % 12
                 self.total_visual_feat[:, :, image_h*(2-y):image_h*(3-y), image_w*x:image_w*(x+1)] = total_visual_feat[:, i, :, :].unsqueeze(1)
-            
-            # for i in range(self.max_navigable):
-            #     y = i // 12
-            #     x = i % 12
-            #     partial_depth_feat = depth_feat[:, :, image_h*(2-y):image_h*(3-y), image_w*x:image_w*(x+1)]
-            #     partial_obj_detection_feat = obj_detection_feat[:, :, image_h*(2-y):image_h*(3-y), image_w*x:image_w*(x+1)]
-            #     partial_num_navigable_attention = num_navigable_attention[:, 2-y, x]
-            #     pdb.set_trace()  #10 #10
-            #     partial_depth_feat = self.conv1(partial_depth_feat)
-            #     pdb.set_trace()
-
-            #     partial_num_navigable_attention = partial_num_navigable_attention.unsqueeze(-1).unsqueeze(-1).unsqueeze(-1).expand_as(partial_depth_feat)
-            #     partial_depth_feat *= partial_num_navigable_attention
-            #     partial_obj_detection_feat *= partial_num_navigable_attention
-            #     pdb.set_trace()  #10 #10 #10
-            #     partial_visual_feat = torch.cat((partial_depth_feat, partial_obj_detection_feat), dim=1)
-            #     pdb.set_trace()  #6 #6 #6
-
-            #     partial_visual_feat, dynamic_filter_attention = self.dynamic_conv2d(weighted_ctx, partial_visual_feat)
-            #     pdb.set_trace()  #6 #6 #6
-            #     partial_visual_feat = F.sigmoid(partial_visual_feat)
-            #     pdb.set_trace()
-            #     self.total_visual_feat[:, :, image_h*(2-y):image_h*(3-y), image_w*x:image_w*(x+1)] = partial_visual_feat
 
             visual_feat_1 = self.conv2(self.total_visual_feat)
             visual_feat_2 = self.conv2(torch.cat((self.total_visual_feat[:, :, :, -image_w:], self.total_visual_feat[:, :, :, :-image_w]), dim=-1))

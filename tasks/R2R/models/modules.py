@@ -186,12 +186,13 @@ def create_mask(batchsize, max_length, length):
         row[:length[idx]] = 1
     return tensor_mask.to(device)
 
-def create_new_mask(batchsize, max_length, batch_indexs, tensor_mask):
+def create_new_mask(batchsize, max_length, batch_indexs):
     """Given the index create a mask given a padded tensor"""
+    tensor_mask = torch.zeros(batchsize, max_length)
     for batch_num, indexs in enumerate(batch_indexs):
         for index in indexs:
             tensor_mask[batch_num, index] = 1
-    return tensor_mask
+    return tensor_mask.to(device)
 
 def proj_masking(feat, projector, mask=None):
     """Universal projector and masking"""
