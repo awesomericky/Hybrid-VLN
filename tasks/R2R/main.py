@@ -151,8 +151,9 @@ parser.add_argument('--log_dir',
                     default='tensorboard_logs/pano-seq2seq',
                     type=str, help='path to tensorboard log files')
 
-# Wandb Id
+# Wandb
 parser.add_argument('--wandbId', type=str, help='Check wandb config')
+parser.add_argument('--wandb_visualize', type=int, default=0, help='visualize middle layer features')
 
 
 def main(opts):
@@ -213,13 +214,15 @@ def main(opts):
     params = list(encoder.parameters()) + list(model.parameters())
     optimizer = torch.optim.Adam(params, lr=opts.learning_rate)
 
-    for param in list(model.parameters()):
-        if param.requires_grad:
-            if param.data.cpu().numpy().shape[0] == 2:
-                print(param)
-            elif param.data.cpu().numpy().shape == (4,1,2,5,5):
-                print(param)
-    import pdb; pdb.set_trace()
+    # ###### Logging ###### 
+    # for param in list(model.parameters()):
+    #     if param.requires_grad:
+    #         if param.data.cpu().numpy().shape[0] == 2:
+    #             print(param)
+    #         elif param.data.cpu().numpy().shape == (4,1,2,5,5):
+    #             print(param)
+    # import pdb; pdb.set_trace()
+
     # optionally resume from a checkpoint
     if opts.resume:
         model, encoder, optimizer, best_success_rate = resume_training(opts, model, encoder, optimizer)
@@ -244,8 +247,8 @@ def main(opts):
         wandb.watch(model, log='parameter')
     else:
         # Log model parameters and gradients
-        wandb.watch(encoder, log='all', log_freq=64)
-        wandb.watch(model, log='all', log_freq=64)
+        wandb.watch(encoder, 'gradients', log_freq=4)
+        wandb.watch(model, log='all', log_freq=4)
 
     if opts.test_submission:
         assert opts.resume, 'The model was not resumed before running for submission.'
@@ -342,17 +345,17 @@ def main(opts):
 if __name__ == '__main__':
     opts = parser.parse_args()
 
-    # # Initialize wandb logger
-    # wandb.init(project='VLN', reinit=True, resume='allow')
-    # if opts.test_submission:
-    #     wandb.run.name = 'hybrid_{}'.format('test')
-    # elif opts.eval_only:
-    #     wandb.run.name = 'hybrid_{}'.format('val_eval')
-    # else:
-    #     wandb.run.name = 'hybrid'
-    # wandb.run.save()
-    # opts.wandbId = wandb.run.id
-    # wandb.run.config.update(opts)
+    # Initialize wandb logger
+    wandb.init(project='VLN', reinit=True, resume='allow')
+    if opts.test_submission:
+        wandb.run.name = 'hybrid_{}'.format('test')
+    elif opts.eval_only:
+        wandb.run.name = 'hybrid_{}'.format('val_eval')
+    else:
+        wandb.run.name = 'hybrid'
+    wandb.run.save()
+    opts.wandbId = wandb.run.id
+    wandb.run.config.update(opts)
     
     # Start main algorithm
     main(opts)

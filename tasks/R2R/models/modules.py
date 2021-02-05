@@ -99,7 +99,6 @@ class Dynamic_conv2d_attention(nn.Module):
         if init_weight:
             self._initialize_weights()
 
-
     def _initialize_weights(self):
         for m in self.modules():
             for n in m.modules():
@@ -139,19 +138,23 @@ class Dynamic_conv2d(nn.Module):
         self.weights = []
         self.bias = []
         for _ in range(num_filters):
-            weight = nn.Parameter(torch.randn(output_channel, input_channel, kernel_size, kernel_size), requires_grad=True)
+            weight = torch.randn(output_channel, input_channel, kernel_size, kernel_size)
             self.weights.append(weight)
             if bias:
-                self.bias.append(nn.Parameter(torch.zeros(output_channel), requires_grad=True))
-        self.weights = torch.stack(self.weights).to(device)
-        self.bias = torch.stack(self.bias).to(device)
+                self.bias.append(torch.zeros(output_channel))
 
         if init_weight:
             self._initialize_weights()
+        
+        self._parametrize()
 
     def _initialize_weights(self):
         for i in range(self.num_filters):
             nn.init.kaiming_uniform_(self.weights[i])
+    
+    def _parametrize(self):
+        self.weights = nn.Parameter(torch.stack(self.weights), requires_grad=True)
+        self.bias = nn.Parameter(torch.stack(self.bias), requires_grad=True)
 
     def update_temperature(self):
         self.attention.updata_temperature()
