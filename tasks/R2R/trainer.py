@@ -65,6 +65,7 @@ class PanoSeq2SeqTrainer():
                 self.optimizer.zero_grad()
                 loss.backward()
                 self.optimizer.step()
+                # import pdb;pdb.set_trace()
 
                 # measure elapsed time
                 batch_time.update(time.time() - end)
@@ -80,7 +81,7 @@ class PanoSeq2SeqTrainer():
                         tb_logger.add_scalar('train/value_loss', self.agent.value_loss, current_iter)
                 """
                 
-                if iter % 10 == 0:
+                if iter % 5 == 0:
                     current_iter = iter + (epoch - 1) * self.train_iters_epoch
                     wandb.log({'iter':current_iter})
                     wandb.log({'train/loss_train':loss})

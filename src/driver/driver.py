@@ -25,9 +25,9 @@ sim.setDepthEnabled(True) # Turn on depth only after running ./scripts/depth_to_
 sim.setDiscretizedViewingAngles(True)
 sim.initialize()
 
-#sim.newEpisode(['2t7WUuJeko7'], ['1e6b606b44df4a6086c0f97e826d4d15'], [0], [0])
-sim.newEpisode(['uNb9QFRL6hY'], ['84722e58b32f4646acc12614994f835b'], [0], [0])
-#sim.newRandomEpisode(['wc2JMjhGNzB'])
+# sim.newEpisode(['VzqfbhrpDEA'], ['feae9e692abf42eaa8369c09c7dd97c9'], [0], [0])
+sim.newEpisode(['2azQ1b91cZZ'], ['ac3dc08c7a2646b991fda42ccc42bc47'], [0], [0])
+# sim.newRandomEpisode(['wc2JMjhGNzB'])
 
 heading = 0
 elevation = 0

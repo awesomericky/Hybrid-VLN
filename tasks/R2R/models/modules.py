@@ -143,8 +143,8 @@ class Dynamic_conv2d(nn.Module):
             self.weights.append(weight)
             if bias:
                 self.bias.append(nn.Parameter(torch.zeros(output_channel), requires_grad=True))
-        self.weights = torch.stack(self.weights).cuda()
-        self.bias = torch.stack(self.bias).cuda()
+        self.weights = torch.stack(self.weights).to(device)
+        self.bias = torch.stack(self.bias).to(device)
 
         if init_weight:
             self._initialize_weights()

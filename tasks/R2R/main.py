@@ -110,10 +110,10 @@ parser.add_argument('--img_fc_use_angle', default=0, type=int,
                     help='add relative heading and elevation angle into image feature')
 
 # Language model
-parser.add_argument('--remove_punctuation', default=0, type=int,
+parser.add_argument('--remove_punctuation', default=1, type=int,
                     help='the original ''encode_sentence'' does not remove punctuation'
                          'we provide an option here.')
-parser.add_argument('--reversed', default=1, type=int,
+parser.add_argument('--reversed', default=0, type=int,
                     help='option for reversing the sentence during encoding')
 parser.add_argument('--lang_embed', default='lstm', type=str, help='options: lstm ')
 parser.add_argument('--word_embedding_size', default=256, type=int,
@@ -150,6 +150,9 @@ parser.add_argument('--tensorboard', default=1, type=int,
 parser.add_argument('--log_dir',
                     default='tensorboard_logs/pano-seq2seq',
                     type=str, help='path to tensorboard log files')
+
+# Wandb Id
+parser.add_argument('--wandbId', type=str, help='Check wandb config')
 
 
 def main(opts):
@@ -210,6 +213,13 @@ def main(opts):
     params = list(encoder.parameters()) + list(model.parameters())
     optimizer = torch.optim.Adam(params, lr=opts.learning_rate)
 
+    for param in list(model.parameters()):
+        if param.requires_grad:
+            if param.data.cpu().numpy().shape[0] == 2:
+                print(param)
+            elif param.data.cpu().numpy().shape == (4,1,2,5,5):
+                print(param)
+    import pdb; pdb.set_trace()
     # optionally resume from a checkpoint
     if opts.resume:
         model, encoder, optimizer, best_success_rate = resume_training(opts, model, encoder, optimizer)
@@ -227,6 +237,15 @@ def main(opts):
     feature['depth_features'] = depth_features
     feature['obj_features'] = obj_features
     feature['num_navigable_features'] = num_navigable_features
+
+    if opts.eval_only or opts.test_submission:
+        # Log model parameters and gradients
+        wandb.watch(encoder, log='parameter')
+        wandb.watch(model, log='parameter')
+    else:
+        # Log model parameters and gradients
+        wandb.watch(encoder, log='all', log_freq=64)
+        wandb.watch(model, log='all', log_freq=64)
 
     if opts.test_submission:
         assert opts.resume, 'The model was not resumed before running for submission.'
@@ -275,59 +294,24 @@ def main(opts):
 
     if opts.eval_beam or opts.eval_only:
 
-        wandb_config = {'model':opts.arch,
-                    'exp_name':opts.exp_name,
-                    'learning_rate':opts.learning_rate,
-                    'batch_size':opts.batch_size,
-                    'train_iters_epoch':opts.train_iters_epoch,
-                    'train_data_augmentation':opts.train_data_augmentation,
-                    'epochs_data_augmentation':opts.epochs_data_augmentation,
-                    'max_episode_len':opts.max_episode_len,
-                    'resume':opts.resume}
-
-        eval_type = 'val_eval' if opts.eval_only else 'val_test'
-        wandb.init(project='VLN', name='hybrid_{}'.format(eval_type), config=wandb_config)
-
         success_rate = []
         for val_env in val_envs.items():
             success_rate.append(trainer.eval(opts.start_epoch - 1, val_env, tb_logger=None))
         return
 
-    # set up tensorboard logger
-    tb_logger = set_tb_logger(opts.log_dir, opts.exp_name, opts.resume)
-
-    wandb_config = {'model':opts.arch,
-                    'training_state':opts.training_state,
-                    'exp_name':opts.exp_name,
-                    'learning_rate':opts.learning_rate,
-                    'batch_size':opts.batch_size,
-                    'train_iters_epoch':opts.train_iters_epoch,
-                    'train_data_augmentation':opts.train_data_augmentation,
-                    'epochs_data_augmentation':opts.epochs_data_augmentation,
-                    'max_episode_len':opts.max_episode_len,
-                    'resume':opts.resume}
-    
-    if len(opts.resume) < 2 or opts.exp_name.split('|')[1].split('_')[0]=='synthetic':
-       wandb_id = wandb.util.generate_id()
-       print('Wandb id: {}'.format(wandb_id))
-       with open('/disk2/yunhokim/Hybrid-VLN/{}_wandbID.txt'.format(opts.exp_name), 'w') as f:
-         f.write(str(wandb_id))
-    else:
-       f = open('/disk2/yunhokim/Hybrid-VLN/{}_wandbID.txt'.format(opts.exp_name), 'r')
-       wandb_id = f.readlines()
-       wandb_id = wandb_id[0].strip()
-
-    wandb.init(project='VLN', name='hybrid', id=wandb_id, resume="allow", config=wandb_config)
+    # set up tensorboard logger  (we will use wandb logger instead)
+    # tb_logger = set_tb_logger(opts.log_dir, opts.exp_name, opts.resume)
+    # tb_logger = None
     
     best_success_rate = best_success_rate if opts.resume else 0.0
 
     for epoch in range(opts.start_epoch, opts.max_num_epochs + 1):
-        trainer.train(epoch, train_env, tb_logger)
+        trainer.train(epoch, train_env, tb_logger=None)
 
         if epoch % opts.eval_every_epochs == 0:
             success_rate = []
             for val_env in val_envs.items():
-                success_rate.append(trainer.eval(epoch, val_env, tb_logger))
+                success_rate.append(trainer.eval(epoch, val_env, tb_logger=None))
 
             success_rate_compare = success_rate[1]
 
@@ -357,4 +341,21 @@ def main(opts):
 
 if __name__ == '__main__':
     opts = parser.parse_args()
+
+    # # Initialize wandb logger
+    # wandb.init(project='VLN', reinit=True, resume='allow')
+    # if opts.test_submission:
+    #     wandb.run.name = 'hybrid_{}'.format('test')
+    # elif opts.eval_only:
+    #     wandb.run.name = 'hybrid_{}'.format('val_eval')
+    # else:
+    #     wandb.run.name = 'hybrid'
+    # wandb.run.save()
+    # opts.wandbId = wandb.run.id
+    # wandb.run.config.update(opts)
+    
+    # Start main algorithm
     main(opts)
+
+    # Finish wandb logger
+    wandb.run.finish()

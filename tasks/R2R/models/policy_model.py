@@ -29,13 +29,13 @@ class HybridAgent(nn.Module):
         assert training_state in [1, 2, 3]
         if training_state == 1:
             # Only using high level visual feature
-            self.hybrid_weight = torch.tensor([1, 0], dtype=torch.float32, requires_grad=True, device=self.device)
+            self.hybrid_weight = nn.Parameter(torch.tensor([1, 0]), requires_grad=False).to(self.device)
         elif training_state == 2:
             # Only using low level visual feature
-            self.hybrid_weight = torch.tensor([0, 1], dtype=torch.float32, requires_grad=True, device=self.device)
+            self.hybrid_weight = nn.Parameter(torch.tensor([0, 1]), requires_grad=False).to(self.device)
         else:  # training_state == 3
             # Using both high level and low level visual feature
-            self.hybrid_weight = torch.tensor([0.5, 0.5], dtype=torch.float32, requires_grad=True, device=self.device)
+            self.hybrid_weight = nn.Parameter(torch.tensor([0.5, 0.5]), requires_grad=True).to(self.device)
 
         self.h0_t_ctx_fc = nn.Linear(rnn_hidden_size, rnn_hidden_size, bias=fc_bias)
         self.soft_attn = SoftAttention()
