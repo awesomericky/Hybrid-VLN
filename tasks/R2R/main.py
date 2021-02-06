@@ -230,7 +230,7 @@ def main(opts):
 
     # optionally resume from a checkpoint
     if opts.resume:
-        model, encoder, optimizer, best_success_rate = resume_training(opts, model, encoder, optimizer)
+        model, encoder, _, best_success_rate = resume_training(opts, model, encoder, optimizer)
 
     # if a secondary exp name is specified, this is useful when resuming from a previous saved
     # experiment and save to another experiment, e.g., pre-trained on synthetic data and fine-tune on real data

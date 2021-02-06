@@ -261,10 +261,11 @@ def is_experiment():
     """
     A small function for developing on MacOS. When developing, the code will not load the full dataset
     """
-    if sys.platform != 'darwin':
-        return True
-    else:
-        return False
+    # if sys.platform != 'darwin':
+    #     return True
+    # else:
+    #     return False
+    return True
 
 
 def resume_training(opts, model, encoder, optimizer):
@@ -286,14 +287,16 @@ def resume_training(opts, model, encoder, optimizer):
             opts.max_episode_len = checkpoint['max_episode_len']
         except:
             pass
-        model.load_state_dict(checkpoint['state_dict'])
+        model.load_state_dict(checkpoint['state_dict'], strict=False)
         if encoder is not None:
             encoder.load_state_dict(checkpoint['encoder_state_dict'])
-        optimizer.load_state_dict(checkpoint['optimizer'])
+        # optimizer.load_state_dict(checkpoint['optimizer'])
+        optimizer = None
         try:
             best = checkpoint['best_success_rate']
         except:
-            best = checkpoint['best_loss']
+            # best = checkpoint['best_loss']
+            raise ValueError('Best sucess rate not saved')
         print("=> loaded checkpoint '{}' (epoch {})"
               .format(opts.resume, checkpoint['epoch']))
     else:
