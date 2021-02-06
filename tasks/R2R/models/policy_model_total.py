@@ -257,7 +257,7 @@ class HybridAgent_total(nn.Module):
         else:
             img_feat, depth_feat, obj_detection_feat, num_navigable_feat, pre_action, h_0, c_0, weighted_ctx, ctx_attn  = model_input
 
-            hybrid_weight = F.softmax(self.hybrid_weight)
+            hybrid_weight = F.softmax(self.hybrid_weight, dim=0)
 
             pre_action_feat = self.action_embedding(pre_action)
 

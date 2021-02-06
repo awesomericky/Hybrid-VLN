@@ -269,8 +269,8 @@ class EnvBatch():
                         final_partial_obj_detection = np.sum(partial_obj_detection*obj_weight, axis=0)
                     
                     spatial_obj_detection[i, :, :] = final_partial_obj_detection
-                else:
-                    spatial_obj_detection = None
+            else:
+                spatial_obj_detection = None
             
             # Number of navigable locations # (normalized)
             if self.features['num_navigable_features']:
