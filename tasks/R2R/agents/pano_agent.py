@@ -106,28 +106,58 @@ class PanoBaseAgent(object):
         obj_detection_feat: batch x 36 x image_h x image_w
         num_navigable_feat: batch x 36
         """
+        current_mode = ''
 
-        img_feat_shape = obs[0]['spatial_image_feature'].shape
-        normalized_raw_depth_feat_shape = obs[0]['spatial_depth']['normalized_raw_depth'].shape
-        normalized_clip_depth_feat_shape = obs[0]['spatial_depth']['normalized_clip_depth'].shape
-        obj_detection_feat_shape = obs[0]['spatial_obj_detection'].shape
-        num_navigable_feat_shape = obs[0]['spatial_n_navigable'].shape
+        if obs[0]['spatial_image_feature'] is not None:
+            img_feat_shape = obs[0]['spatial_image_feature'].shape
+            img_feat = torch.zeros(len(obs), img_feat_shape[0], img_feat_shape[1])
+            current_mode += 'a'
+        else:
+            img_feat = None
 
-        img_feat = torch.zeros(len(obs), img_feat_shape[0], img_feat_shape[1])
-        normalized_raw_depth_feat = torch.zeros(len(obs), normalized_raw_depth_feat_shape[0], normalized_raw_depth_feat_shape[1], normalized_raw_depth_feat_shape[2])
-        normalized_clip_depth_feat = torch.zeros(len(obs), normalized_clip_depth_feat_shape[0], normalized_clip_depth_feat_shape[1], normalized_clip_depth_feat_shape[2])
-        obj_detection_feat = torch.zeros(len(obs), obj_detection_feat_shape[0], obj_detection_feat_shape[1], obj_detection_feat_shape[2])
-        num_navigable_feat = torch.zeros(len(obs), num_navigable_feat_shape[0])
+        if obs[0]['spatial_depth'] is not None:
+            normalized_raw_depth_feat_shape = obs[0]['spatial_depth']['normalized_raw_depth'].shape
+            normalized_clip_depth_feat_shape = obs[0]['spatial_depth']['normalized_clip_depth'].shape
+            normalized_raw_depth_feat = torch.zeros(len(obs), normalized_raw_depth_feat_shape[0], normalized_raw_depth_feat_shape[1], normalized_raw_depth_feat_shape[2])
+            normalized_clip_depth_feat = torch.zeros(len(obs), normalized_clip_depth_feat_shape[0], normalized_clip_depth_feat_shape[1], normalized_clip_depth_feat_shape[2])
+            current_mode += 'b'
+        else:
+            depth_feat = None
+
+        if obs[0]['spatial_obj_detection'] is not None:
+            obj_detection_feat_shape = obs[0]['spatial_obj_detection'].shape
+            obj_detection_feat = torch.zeros(len(obs), obj_detection_feat_shape[0], obj_detection_feat_shape[1], obj_detection_feat_shape[2])
+            current_mode += 'c'
+        else:
+            obj_detection_feat = None
+
+        if obs[0]['spatial_n_navigable'] is not None:
+            num_navigable_feat_shape = obs[0]['spatial_n_navigable'].shape
+            num_navigable_feat = torch.zeros(len(obs), num_navigable_feat_shape[0])
+            current_mode += 'd'
+        else:
+            num_navigable_feat = None
+        
+        assert current_mode in ['ad', 'bcd', 'abcd'], 'Check the env.py code'
 
         navigable_feat_index, target_index, viewpoints = [], [], []
         for i, ob in enumerate(obs):
-            img_feat[i, :] = torch.from_numpy(ob['spatial_image_feature'])
-            normalized_raw_depth_feat[i, :] = torch.from_numpy(ob['spatial_depth']['normalized_raw_depth'])
-            normalized_clip_depth_feat[i, :] = torch.from_numpy(ob['spatial_depth']['normalized_clip_depth'])
-            obj_detection_feat[i, :] = torch.from_numpy(ob['spatial_obj_detection'])
-            num_navigable_feat[i, :] = torch.from_numpy(ob['spatial_n_navigable'])
-
-            depth_feat = [normalized_raw_depth_feat, normalized_clip_depth_feat]
+            if current_mode == 'ad':
+                img_feat[i, :] = torch.from_numpy(ob['spatial_image_feature'])
+                num_navigable_feat[i, :] = torch.from_numpy(ob['spatial_n_navigable'])
+            elif current_mode == 'bcd':
+                normalized_raw_depth_feat[i, :] = torch.from_numpy(ob['spatial_depth']['normalized_raw_depth'])
+                normalized_clip_depth_feat[i, :] = torch.from_numpy(ob['spatial_depth']['normalized_clip_depth'])
+                depth_feat = [normalized_raw_depth_feat, normalized_clip_depth_feat]
+                obj_detection_feat[i, :] = torch.from_numpy(ob['spatial_obj_detection'])
+                num_navigable_feat[i, :] = torch.from_numpy(ob['spatial_n_navigable'])
+            else:  # current_mode == 'abcd'
+                img_feat[i, :] = torch.from_numpy(ob['spatial_image_feature'])
+                normalized_raw_depth_feat[i, :] = torch.from_numpy(ob['spatial_depth']['normalized_raw_depth'])
+                normalized_clip_depth_feat[i, :] = torch.from_numpy(ob['spatial_depth']['normalized_clip_depth'])
+                depth_feat = [normalized_raw_depth_feat, normalized_clip_depth_feat]
+                obj_detection_feat[i, :] = torch.from_numpy(ob['spatial_obj_detection'])
+                num_navigable_feat[i, :] = torch.from_numpy(ob['spatial_n_navigable'])
 
             index_list = []
             viewpoints_tmp = []
@@ -279,8 +309,16 @@ class PanoSeq2SeqAgent(PanoBaseAgent):
                 traj[i]['path'].append((ob['viewpoint'], ob['heading'], ob['elevation']))
                 dist = super(PanoSeq2SeqAgent, self)._get_distance(ob)
                 traj[i]['distance'].append(dist)
-                traj[i]['img_attn'].append(img_attn[i].detach().cpu().numpy().tolist())
-                traj[i]['low_visual_feat'].append(low_visual_feat[i].detach().cpu().numpy().tolist())
+
+                if img_attn is not None:
+                    traj[i]['img_attn'].append(img_attn[i].detach().cpu().numpy().tolist())
+                else:
+                    traj[i]['img_attn'].append(None)
+                if low_visual_feat is not None:
+                    traj[i]['low_visual_feat'].append(low_visual_feat[i].detach().cpu().numpy().tolist())
+                else:
+                    traj[i]['low_visual_feat'].append(None)
+
                 traj[i]['ctx_attn'].append(ctx_attn[i].detach().cpu().numpy().tolist())
 
                 if len(value[1]) > 1:
@@ -326,12 +364,26 @@ class PanoSeq2SeqAgent(PanoBaseAgent):
             viewpoints_indices = super(PanoSeq2SeqAgent, self).pano_navigable_feat(obs, ended)
             viewpoints, navigable_index, target_index = viewpoints_indices
 
-            img_feat = img_feat.to(self.device)
-            depth_feat[0] = depth_feat[0].to(self.device)  # normalized_raw_depth_feat
-            depth_feat[1] = depth_feat[1].to(self.device)  # normalized_clip_depth_feat
-            obj_detection_feat = obj_detection_feat.to(self.device)
-            num_navigable_feat = num_navigable_feat.to(self.device)
-            target = torch.LongTensor(target_index).to(self.device)
+            if self.opts.model_state == 1:
+                # Only using high level visual feature
+                img_feat = img_feat.to(self.device)
+                num_navigable_feat = num_navigable_feat.to(self.device)
+                target = torch.LongTensor(target_index).to(self.device)
+            elif self.opts.model_state == 2:
+                # Only using low level visual feature
+                depth_feat[0] = depth_feat[0].to(self.device)  # normalized_raw_depth_feat
+                depth_feat[1] = depth_feat[1].to(self.device)  # normalized_clip_depth_feat
+                obj_detection_feat = obj_detection_feat.to(self.device)
+                num_navigable_feat = num_navigable_feat.to(self.device)
+                target = torch.LongTensor(target_index).to(self.device)
+            else:
+                # Using both high level and low level visual feature
+                img_feat = img_feat.to(self.device)
+                depth_feat[0] = depth_feat[0].to(self.device)  # normalized_raw_depth_feat
+                depth_feat[1] = depth_feat[1].to(self.device)  # normalized_clip_depth_feat
+                obj_detection_feat = obj_detection_feat.to(self.device)
+                num_navigable_feat = num_navigable_feat.to(self.device)
+                target = torch.LongTensor(target_index).to(self.device)
 
             # forward pass the network
             h_t, c_t, weighted_ctx, img_attn, low_visual_feat, ctx_attn, logit, value, navigable_mask = self.model(

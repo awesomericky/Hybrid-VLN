@@ -25,82 +25,90 @@ SAFE_DEPTH_THRESHOLD = 5*4000
 INSTRUCTION_ATTENTION_THRESHOLD = 5
 
 
-def load_features(img_feature_store, depth_feature_store, object_feature_store, num_navigable_feature_store, max_navigable):
+def load_features(img_feature_store, depth_feature_store, object_feature_store, num_navigable_feature_store, max_navigable, model_state):
     def _make_id(scanId, viewpointId):
         return scanId + '_' + viewpointId
-
-    # Load image features
-    if img_feature_store:
-        tsv_fieldnames = ['scanId', 'viewpointId', 'image_w', 'image_h', 'vfov', 'features']
-        img_features = {}
-        with open(img_feature_store, "r") as tsv_in_file:
-            print('Reading image features file %s' % img_feature_store)
-            reader = list(csv.DictReader(tsv_in_file, delimiter='\t', fieldnames=tsv_fieldnames))
-            total_length = len(reader)
-
-            print('Loading image features ..')
-            for i, item in enumerate(reader):
-                # image_h = int(item['image_h'])
-                # image_w = int(item['image_w'])
-                # vfov = int(item['vfov'])
-                long_id = _make_id(item['scanId'], item['viewpointId'])
-                img_features[long_id] = np.frombuffer(base64.b64decode(item['features']),
-                                                       dtype=np.float32).reshape((36, 2048))
-                # print_progress(i + 1, total_length, prefix='Progress:',
-                #                suffix='Complete', bar_length=50)
-    else:
-        raise ValueError('Image features not provided')
-        # print('Image features not provided')
-        # features = None
-        # image_w = 640
-        # image_h = 480
-        # vfov = 60
     
+    img_features = None
+    depth_features = None
+    obj_features = None
+    num_navigable_features = None
+
     # downsize image (downsized by 4)
     image_w = 160  # 640/4
     image_h = 120  # 480/4
     vfov = 60
+
+    # Load image features
+    if model_state in [1, 3]:
+        if img_feature_store:
+            tsv_fieldnames = ['scanId', 'viewpointId', 'image_w', 'image_h', 'vfov', 'features']
+            img_features = {}
+            with open(img_feature_store, "r") as tsv_in_file:
+                print('Reading image features file %s' % img_feature_store)
+                reader = list(csv.DictReader(tsv_in_file, delimiter='\t', fieldnames=tsv_fieldnames))
+                total_length = len(reader)
+
+                print('Loading image features ..')
+                for i, item in enumerate(reader):
+                    # image_h = int(item['image_h'])
+                    # image_w = int(item['image_w'])
+                    # vfov = int(item['vfov'])
+                    long_id = _make_id(item['scanId'], item['viewpointId'])
+                    img_features[long_id] = np.frombuffer(base64.b64decode(item['features']),
+                                                        dtype=np.float32).reshape((36, 2048))
+                    # print_progress(i + 1, total_length, prefix='Progress:',
+                    #                suffix='Complete', bar_length=50)
+        else:
+            raise ValueError('Image features not provided')
+            # print('Image features not provided')
+            # features = None
+            # image_w = 640
+            # image_h = 480
+            # vfov = 60
     
     # Load depth features
     # Way to get data in code: depth_features[scanId_viewpointId]
-    if depth_feature_store:
-        print('Reading depth features from {}'.format(depth_feature_store))
-        print('Loading depth features ..')
-        depth_features = {}
-        depth_tmp_1 = np.zeros((max_navigable, image_h, image_w))
-        scanIds = listdir(depth_feature_store)
-        for scanId in scanIds:
-            viewpointId_files = listdir(join(depth_feature_store, scanId))
-            for viewpointId_file in viewpointId_files:
-                viewpointId = viewpointId_file.split('.')[0]
-                depth_tmp_2 = np.load(join(join(depth_feature_store, scanId), viewpointId_file))['depth'].squeeze(0)  # (image_h*3, image_w*12)
-                for i in range(max_navigable):
-                    y = i // 12
-                    x = i % 12
-                    depth_tmp_1[i, :, :] = depth_tmp_2[image_h*(2-y):image_h*(3-y), image_w*x:image_w*(x+1)]
-                depth_features['{}_{}'.format(scanId, viewpointId)] = depth_tmp_1  # (36, image_h, image_w)
-    else:
-        raise ValueError('Depth features not provided')
+    if model_state in [2, 3]:
+        if depth_feature_store:
+            print('Reading depth features from {}'.format(depth_feature_store))
+            print('Loading depth features ..')
+            depth_features = {}
+            depth_tmp_1 = np.zeros((max_navigable, image_h, image_w))
+            scanIds = listdir(depth_feature_store)
+            for scanId in scanIds:
+                viewpointId_files = listdir(join(depth_feature_store, scanId))
+                for viewpointId_file in viewpointId_files:
+                    viewpointId = viewpointId_file.split('.')[0]
+                    depth_tmp_2 = np.load(join(join(depth_feature_store, scanId), viewpointId_file))['depth'].squeeze(0)  # (image_h*3, image_w*12)
+                    for i in range(max_navigable):
+                        y = i // 12
+                        x = i % 12
+                        depth_tmp_1[i, :, :] = depth_tmp_2[image_h*(2-y):image_h*(3-y), image_w*x:image_w*(x+1)]
+                    depth_features['{}_{}'.format(scanId, viewpointId)] = depth_tmp_1  # (36, image_h, image_w)
+        else:
+            raise ValueError('Depth features not provided')
 
     # Load object features
     # Way to get data in code: obj_features[scanId_viewpointId_(viewpoint_idx)]
-    if object_feature_store:
-        print('Reading object features from {}'.format(object_feature_store))
-        print('Loading object features ..')
-        obj_features = {}
-        scanIds = listdir(object_feature_store)
-        for scanId in scanIds:
-            viewpointId_files = listdir(join(object_feature_store, scanId))
-            for viewpointId_file in viewpointId_files:
-                viewpointId = viewpointId_file.split('.')[0].split('_')[0]
-                viewpoint_idx = viewpointId_file.split('.')[0].split('_')[1]
-                file_name = join(join(object_feature_store, scanId), viewpointId_file)
+    if model_state in [2, 3]:
+        if object_feature_store:
+            print('Reading object features from {}'.format(object_feature_store))
+            print('Loading object features ..')
+            obj_features = {}
+            scanIds = listdir(object_feature_store)
+            for scanId in scanIds:
+                viewpointId_files = listdir(join(object_feature_store, scanId))
+                for viewpointId_file in viewpointId_files:
+                    viewpointId = viewpointId_file.split('.')[0].split('_')[0]
+                    viewpoint_idx = viewpointId_file.split('.')[0].split('_')[1]
+                    file_name = join(join(object_feature_store, scanId), viewpointId_file)
 
-                with open(file_name, 'rb') as f:
-                    object_detection_result = pickle.load(f)
-                obj_features['{}_{}_{}'.format(scanId, viewpointId, viewpoint_idx)] = object_detection_result  # [(obj(=str), obj_bbox(=array)), ...]
-    else:
-        raise ValueError('Object features not provided')
+                    with open(file_name, 'rb') as f:
+                        object_detection_result = pickle.load(f)
+                    obj_features['{}_{}_{}'.format(scanId, viewpointId, viewpoint_idx)] = object_detection_result  # [(obj(=str), obj_bbox(=array)), ...]
+        else:
+            raise ValueError('Object features not provided')
     
     # Load number of navigable features
     # Way to get data in code: num_navigable_features[scanId_viewpointId]
@@ -185,82 +193,91 @@ class EnvBatch():
         for state in states:
             scanId = state.scanId
             viewpointId = state.location.viewpointId
+            long_id = self._make_id(scanId, viewpointId)
 
             # ResNet image(rgb) feature
-            long_id = self._make_id(scanId, viewpointId)
             if self.features['img_features']:
                 spatial_img_feature = self.features['img_features'][long_id]  # (36, img_feature_dim)
             else:
                 spatial_img_feature = None
             
             # Depth (normalized free space)
-            spatial_depth = {}
+            if self.features['depth_features']:
+                spatial_depth = {}
 
-            raw_depth = self.features['depth_features'][long_id] # (36, image_h, image_w)
-            normalized_raw_depth = raw_depth/np.max(raw_depth)
-            clip_depth = np.clip(raw_depth, a_min=0, a_max=SAFE_DEPTH_THRESHOLD)
-            normalized_clip_depth = clip_depth/np.max(clip_depth)
+                raw_depth = self.features['depth_features'][long_id] # (36, image_h, image_w)
+                normalized_raw_depth = raw_depth/np.max(raw_depth)
+                clip_depth = np.clip(raw_depth, a_min=0, a_max=SAFE_DEPTH_THRESHOLD)
+                normalized_clip_depth = clip_depth/np.max(clip_depth)
 
-            spatial_depth['normalized_raw_depth'] = normalized_raw_depth
-            spatial_depth['normalized_clip_depth'] = normalized_clip_depth
+                spatial_depth['normalized_raw_depth'] = normalized_raw_depth
+                spatial_depth['normalized_clip_depth'] = normalized_clip_depth
+            else:
+                spatial_depth = None
 
             # Object detection
-            spatial_obj_detection = np.zeros((36, self.image_h, self.image_w), dtype=np.float32)
-     
-            # instruction_data = (instruction, instruction_attn) # 'instruction' type: list, 'instruction_attn' type: tensor
-            instruction = instruction_datas[0][states.index(state)]
-            instruction_attn = instruction_datas[1][states.index(state), :]
+            if self.features['obj_features']:
+                spatial_obj_detection = np.zeros((36, self.image_h, self.image_w), dtype=np.float32)
+        
+                # instruction_data = (instruction, instruction_attn) # 'instruction' type: list, 'instruction_attn' type: tensor
+                instruction = instruction_datas[0][states.index(state)]
+                instruction_attn = instruction_datas[1][states.index(state), :]
 
-            instruction_attn_values, instruction_attn_indices = torch.topk(instruction_attn, INSTRUCTION_ATTENTION_THRESHOLD)
+                instruction_attn_values, instruction_attn_indices = torch.topk(instruction_attn, INSTRUCTION_ATTENTION_THRESHOLD)
 
-            instruction_attn_values = instruction_attn_values.detach().cpu().numpy()
-            instruction_attn_indices = instruction_attn_indices.detach().cpu().numpy()
-            attn_words = []
-            for instruction_attn_indice in instruction_attn_indices:
-                attn_words.append(instruction[instruction_attn_indice])
+                instruction_attn_values = instruction_attn_values.detach().cpu().numpy()
+                instruction_attn_indices = instruction_attn_indices.detach().cpu().numpy()
+                attn_words = []
+                for instruction_attn_indice in instruction_attn_indices:
+                    attn_words.append(instruction[instruction_attn_indice])
 
-            for i in range(36):
-                object_detection_result = self.features['obj_features'][long_id + '_' + str(i)]
-                
-                detected_objects = []
-                detected_objects_bboxs = []
-                for ii, obj_result in enumerate(object_detection_result):
-                    detected_objects.append(obj_result[0])
-                    detected_objects_bboxs.append(obj_result[1])
+                for i in range(36):
+                    object_detection_result = self.features['obj_features'][long_id + '_' + str(i)]
+                    
+                    detected_objects = []
+                    detected_objects_bboxs = []
+                    for ii, obj_result in enumerate(object_detection_result):
+                        detected_objects.append(obj_result[0])
+                        detected_objects_bboxs.append(obj_result[1])
 
-                final_attn_words = []
-                final_attn_values = []
-                final_attn_bboxs = []
+                    final_attn_words = []
+                    final_attn_values = []
+                    final_attn_bboxs = []
 
-                for detected_object in detected_objects:
-                    if detected_object in attn_words:
-                        final_attn_words.append(detected_object)
-                        final_attn_values.append(instruction_attn_values[attn_words.index(detected_object)])
-                        final_attn_bboxs.append(detected_objects_bboxs[detected_objects.index(detected_object)])
-                
-                if len(final_attn_words) == 0:
-                    final_partial_obj_detection = np.zeros((1, self.image_h, self.image_w), dtype=np.float32)
+                    for detected_object in detected_objects:
+                        if detected_object in attn_words:
+                            final_attn_words.append(detected_object)
+                            final_attn_values.append(instruction_attn_values[attn_words.index(detected_object)])
+                            final_attn_bboxs.append(detected_objects_bboxs[detected_objects.index(detected_object)])
+                    
+                    if len(final_attn_words) == 0:
+                        final_partial_obj_detection = np.zeros((1, self.image_h, self.image_w), dtype=np.float32)
+                    else:
+                        partial_obj_detection = np.zeros((len(final_attn_words), self.image_h, self.image_w), dtype=np.float32)
+                        
+                        obj_weight = softmax(np.asarray(final_attn_values))
+                        obj_weight = obj_weight[:, np.newaxis, np.newaxis]
+
+                        for index, final_attn_bbox in enumerate(final_attn_bboxs):
+                            width = round(final_attn_bbox[2] - final_attn_bbox[0])
+                            height = round(final_attn_bbox[3] - final_attn_bbox[1])
+                            x = round(final_attn_bbox[0])
+                            y = self.image_h - round(final_attn_bbox[1])
+
+                            partial_obj_detection[index, y-height:y, x:x+width] = 1
+                        
+                        final_partial_obj_detection = np.sum(partial_obj_detection*obj_weight, axis=0)
+                    
+                    spatial_obj_detection[i, :, :] = final_partial_obj_detection
                 else:
-                    partial_obj_detection = np.zeros((len(final_attn_words), self.image_h, self.image_w), dtype=np.float32)
-                    
-                    obj_weight = softmax(np.asarray(final_attn_values))
-                    obj_weight = obj_weight[:, np.newaxis, np.newaxis]
-
-                    for index, final_attn_bbox in enumerate(final_attn_bboxs):
-                        width = round(final_attn_bbox[2] - final_attn_bbox[0])
-                        height = round(final_attn_bbox[3] - final_attn_bbox[1])
-                        x = round(final_attn_bbox[0])
-                        y = self.image_h - round(final_attn_bbox[1])
-
-                        partial_obj_detection[index, y-height:y, x:x+width] = 1
-                    
-                    final_partial_obj_detection = np.sum(partial_obj_detection*obj_weight, axis=0)
-                
-                spatial_obj_detection[i, :, :] = final_partial_obj_detection
+                    spatial_obj_detection = None
             
             # Number of navigable locations # (normalized)
-            spatial_n_navigable = self.features['num_navigable_features'][long_id]
-            # spatial_n_navigable = spatial_n_navigable/np.max(spatial_n_navigable)
+            if self.features['num_navigable_features']:
+                spatial_n_navigable = self.features['num_navigable_features'][long_id]
+                # spatial_n_navigable = spatial_n_navigable/np.max(spatial_n_navigable)
+            else:
+                spatial_n_navigable = None
             
             total_feature_states.append((spatial_img_feature, spatial_depth, spatial_obj_detection, spatial_n_navigable, state))
         
@@ -576,6 +593,14 @@ class R2RBatch():
                     'new_teacher': self.paths[state.scanId][state.location.viewpointId][item['path'][-1]],
                     'gt_viewpoint_idx': gt_viewpoint_idx
                 })
+                # if spatial_img_feature is not None:
+                #     obs[-1]['spatial_image_feature'] = spatial_img_feature
+                # if spatial_depth is not None:
+                #     obs[-1]['spatial_depth'] = spatial_depth
+                # if spatial_obj_detection is not None:
+                #     obs[-1]['spatial_obj_detection'] = spatial_obj_detection
+                # if spatial_n_navigable is not None:
+                #     obs[-1]['spatial_n_navigable'] = spatial_n_navigable  
                 if 'instr_encoding' in item:
                     obs[-1]['instr_encoding'] = item['instr_encoding']
                 if 'instr_decoding' in item:

@@ -8,7 +8,7 @@ from eval import Evaluation
 from utils import setup, read_vocab, Tokenizer, set_tb_logger, is_experiment, padding_idx, resume_training, save_checkpoint
 from trainer import PanoSeq2SeqTrainer
 from agents import PanoSeq2SeqAgent
-from models import EncoderRNN, HybridAgent
+from models import EncoderRNN, HybridAgent_high, HybridAgent_low, HybridAgent_total
 
 
 parser = argparse.ArgumentParser(description='PyTorch for Matterport3D Agent with panoramic view and action')
@@ -96,7 +96,7 @@ parser.add_argument('--fix_action_ended', default=1, type=int,
                     help='Action set to 0 if ended. This prevent the model keep getting loss from logit after ended')
 parser.add_argument('--monitor_sigmoid', default=0, type=int,
                     help='Use Sigmoid function for progress monitor instead of Tanh')
-parser.add_argument('--training_state', default=3, type=int,
+parser.add_argument('--model_state', default=3, type=int,
                     help='[1, 2, 3] available. (1: High, 2: Low, 3: Both)')
 
 # Image context
@@ -188,9 +188,8 @@ def main(opts):
 
     # create policy model
     policy_model_kwargs = {
-        'batch_size': opts.batch_size,
-        'training_state': opts.training_state,
         'opts': opts,
+        'batch_size': opts.batch_size,
         'img_fc_dim': opts.img_fc_dim,
         'img_fc_use_batchnorm': opts.img_fc_use_batchnorm == 1,
         'img_dropout': opts.img_dropout,
@@ -203,7 +202,13 @@ def main(opts):
     }
 
     if opts.arch == 'hybrid':
-        model = HybridAgent(**policy_model_kwargs)
+        # model = HybridAgent(**policy_model_kwargs)
+        if opts.model_state == 1:
+            model = HybridAgent_high(**policy_model_kwargs)
+        elif opts.model_state == 2:
+            model = HybridAgent_low(**policy_model_kwargs)
+        else:  # opts.model_state == 3
+            model = HybridAgent_total(**policy_model_kwargs)
     else:
         raise ValueError('Unknown {} model for seq2seq agent'.format(opts.arch))
     print(model)
@@ -233,7 +238,7 @@ def main(opts):
         opts.exp_name += opts.exp_name_secondary
 
     img_features, depth_features, obj_features, num_navigable_features, img_spec \
-         = load_features(opts.img_feat_dir, opts.depth_feat_dir, opts.obj_feat_dir, opts.num_navigable_feat_dir, opts.max_navigable)
+         = load_features(opts.img_feat_dir, opts.depth_feat_dir, opts.obj_feat_dir, opts.num_navigable_feat_dir, opts.max_navigable, opts.model_state)
     
     feature = {}
     feature['img_features'] = img_features
@@ -243,12 +248,12 @@ def main(opts):
 
     if opts.eval_only or opts.test_submission:
         # Log model parameters and gradients
-        wandb.watch(encoder, log='parameter')
-        wandb.watch(model, log='parameter')
+        wandb.watch(encoder, log='parameter', log_freq=100)
+        wandb.watch(model, log='parameter', log_freq=100)
     else:
         # Log model parameters and gradients
-        wandb.watch(encoder, 'gradients', log_freq=4)
-        wandb.watch(model, log='all', log_freq=4)
+        wandb.watch(encoder, 'gradients', log_freq=100)
+        wandb.watch(model, log='all', log_freq=100)
 
     if opts.test_submission:
         assert opts.resume, 'The model was not resumed before running for submission.'
@@ -344,6 +349,8 @@ def main(opts):
 
 if __name__ == '__main__':
     opts = parser.parse_args()
+
+    assert opts.model_state in [1, 2, 3], 'Check model_state'
 
     # Initialize wandb logger
     wandb.init(project='VLN', reinit=True, resume='allow')

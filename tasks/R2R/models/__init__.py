@@ -1,3 +1,2 @@
 from models.encoder import EncoderRNN
-from models.modules import PositionalEncoding
-from models.policy_model import HybridAgent
+from models.policy_model_total import HybridAgent_high, HybridAgent_low, HybridAgent_total
