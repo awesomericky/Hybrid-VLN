@@ -20,7 +20,7 @@ class HybridAgent_high(nn.Module):
         self.hidden_size = rnn_hidden_size
         self.max_len = max_len
 
-        self.action_embedding = nn.Embedding(opts.max_navigable + 1, action_embedding_size, padding_idx=opts.max_navigable)  # 0~35: moving, 36: <STAY>
+        # self.action_embedding = nn.Embedding(opts.max_navigable + 1, action_embedding_size, padding_idx=opts.max_navigable)  # 0~35: moving, 36: <STAY>
 
         # Only using high level visual feature
         assert opts.model_state == 1, 'Check model state'
@@ -56,12 +56,16 @@ class HybridAgent_high(nn.Module):
         depth_feat: None
         obj_detection_feat: None
         num_navigable_feat: batch x 36
+        navigable_index: list of list
         pre_action: previous attended action feature, list of length same as batch size
+        # pre_action_feat(= previous attended action feature): batch x action_feature_size
+        pre_action_feat(= previous attended action feature): batch x (max_navigable + 1)  # 0~35: moving, 36: <STAY>
         h_0, c_0: batch x rnn_dim
         ctx: batch x seq_len x rnn_dim
-        navigable_index: list of list
+        weighted_ctx: batch x rnn_hiddin_size
         ctx_mask: batch x seq_len - indices to be masked
         """
+
         assert input_type in [None, 'ctx']
 
         if input_type == 'ctx':
@@ -74,7 +78,11 @@ class HybridAgent_high(nn.Module):
         else:
             img_feat, _, _, num_navigable_feat, pre_action, h_0, c_0, weighted_ctx, ctx_attn  = model_input
 
-            pre_action_feat = self.action_embedding(pre_action)
+            ## action one-hot embedding
+            # pre_action_feat = self.action_embedding(pre_action)
+            assert pre_action.shape[-1] != 1, 'Check action index shape'
+            pre_action_feat = torch.zeros((pre_action.shape[0], self.opts.max_navigable+1), requires_grad=False).to(self.device)
+            pre_action_feat.scatter_(1, pre_action.unsqueeze(-1), 1)
 
             high_h_1, high_c_1, high_visual_feat, high_img_attn, proj_navigable_feat, high_navigable_mask \
                 = self.high_model((img_feat, num_navigable_feat, pre_action_feat, h_0, c_0, weighted_ctx, navigable_index), input_type='history')
@@ -111,7 +119,7 @@ class HybridAgent_low(nn.Module):
         self.hidden_size = rnn_hidden_size
         self.max_len = max_len
 
-        self.action_embedding = nn.Embedding(opts.max_navigable + 1, action_embedding_size, padding_idx=max_navigable)  # 0~35: moving, 36: <STAY>
+        # self.action_embedding = nn.Embedding(opts.max_navigable + 1, action_embedding_size, padding_idx=max_navigable)  # 0~35: moving, 36: <STAY>
 
         # Only using low level visual feature
         assert opts.model_state == 2, 'Check model state'
@@ -149,9 +157,16 @@ class HybridAgent_low(nn.Module):
         depth_feat[1](= normalized_clip_depth_feat): batch x 36 x image_h x image_w
         obj_detection_feat: batch x 36 x image_h x image_w
         num_navigable_feat: batch x 36
-        pre_action_feat(= previous attended action feature): batch x action_feature_size
+        navigable_index: list of list
+        pre_action: previous attended action feature, list of length same as batch size
+        # pre_action_feat(= previous attended action feature): batch x action_feature_size
+        pre_action_feat(= previous attended action feature): batch x (max_navigable + 1)  # 0~35: moving, 36: <STAY>
+        h_0, c_0: batch x rnn_dim
+        ctx: batch x seq_len x rnn_dim
         weighted_ctx: batch x rnn_hiddin_size
+        ctx_mask: batch x seq_len - indices to be masked
         """
+
         assert input_type in [None, 'ctx']
 
         if input_type == 'ctx':
@@ -164,7 +179,11 @@ class HybridAgent_low(nn.Module):
         else:
             _, depth_feat, obj_detection_feat, num_navigable_feat, pre_action, h_0, c_0, weighted_ctx, ctx_attn  = model_input
 
-            pre_action_feat = self.action_embedding(pre_action)
+            ## action one-hot embedding
+            # pre_action_feat = self.action_embedding(pre_action)
+            assert pre_action.shape[-1] != 1, 'Check action index shape'
+            pre_action_feat = torch.zeros((pre_action.shape[0], self.opts.max_navigable+1), requires_grad=False).to(self.device)
+            pre_action_feat.scatter_(1, pre_action.unsqueeze(-1), 1)
 
             low_h_1, low_c_1, low_visual_feat, low_navigable_mask \
                 = self.low_model((depth_feat, obj_detection_feat, num_navigable_feat, pre_action_feat, h_0, c_0, weighted_ctx, navigable_index), input_type='history')
@@ -201,7 +220,7 @@ class HybridAgent_total(nn.Module):
         self.hidden_size = rnn_hidden_size
         self.max_len = max_len
 
-        self.action_embedding = nn.Embedding(opts.max_navigable + 1, action_embedding_size, padding_idx=opts.max_navigable)  # 0~35: moving, 36: <STAY>
+        # self.action_embedding = nn.Embedding(opts.max_navigable + 1, action_embedding_size, padding_idx=opts.max_navigable)  # 0~35: moving, 36: <STAY>
 
         assert opts.model_state == 3, 'Check model state'
         # Using both high level and low level visual feature
@@ -242,9 +261,16 @@ class HybridAgent_total(nn.Module):
         depth_feat[1](= normalized_clip_depth_feat): batch x 36 x image_h x image_w
         obj_detection_feat: batch x 36 x image_h x image_w
         num_navigable_feat: batch x 36
-        pre_action_feat(= previous attended action feature): batch x action_feature_size
+        navigable_index: list of list
+        pre_action: previous attended action feature, list of length same as batch size
+        # pre_action_feat(= previous attended action feature): batch x action_feature_size
+        pre_action_feat(= previous attended action feature): batch x (max_navigable + 1)  # 0~35: moving, 36: <STAY>
+        h_0, c_0: batch x rnn_dim
+        ctx: batch x seq_len x rnn_dim
         weighted_ctx: batch x rnn_hiddin_size
+        ctx_mask: batch x seq_len - indices to be masked
         """
+
         assert input_type in [None, 'ctx']
 
         if input_type == 'ctx':
@@ -259,7 +285,11 @@ class HybridAgent_total(nn.Module):
 
             hybrid_weight = F.softmax(self.hybrid_weight, dim=0)
 
-            pre_action_feat = self.action_embedding(pre_action)
+            ## action one-hot embedding
+            # pre_action_feat = self.action_embedding(pre_action)
+            assert pre_action.shape[-1] != 1, 'Check action index shape'
+            pre_action_feat = torch.zeros((pre_action.shape[0], self.opts.max_navigable+1), requires_grad=False).to(self.device)
+            pre_action_feat.scatter_(1, pre_action.unsqueeze(-1), 1)
 
             high_h_1, high_c_1, high_visual_feat, high_img_attn, proj_navigable_feat, high_navigable_mask \
                 = self.high_model((img_feat, num_navigable_feat, pre_action_feat, h_0, c_0, weighted_ctx, navigable_index), input_type='history')

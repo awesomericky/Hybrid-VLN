@@ -248,13 +248,12 @@ def main(opts):
 
     if opts.eval_only or opts.test_submission:
         # Log model parameters and gradients
-        wandb.watch(encoder, log='parameter', log_freq=100)
-        wandb.watch(model, log='parameter', log_freq=100)
+        wandb.watch(encoder, log='parameter', log_freq=100, idx=0)
+        wandb.watch(model, log='parameter', log_freq=100, idx=1)
     else:
         # Log model parameters and gradients
-        wandb.watch(encoder, 'gradients', log_freq=100)
+        wandb.watch(encoder, log='gradients', log_freq=100)
         wandb.watch(model, log='all', log_freq=100)
-
     if opts.test_submission:
         assert opts.resume, 'The model was not resumed before running for submission.'
         test_env = ('test', (R2RBatch(opts, feature, img_spec, batch_size=opts.batch_size,

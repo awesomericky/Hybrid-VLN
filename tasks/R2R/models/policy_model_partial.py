@@ -49,7 +49,8 @@ class HighLevelModel(nn.Module):
 
         img_feat: batch x 36 x img_feature_size
         num_navigable_feat: batch x 36
-        pre_action_feat: previous attended action feature, batch x action_feature_size
+        # pre_action_feat: previous attended action feature, batch x action_feature_size
+        pre_action_feat(= previous attended action feature): batch x (max_navigable + 1)  # 0~35: moving, 36: <STAY>
         weighted_ctx: batch x rnn_hiddin_size
         navigable_index: list of list
         """
@@ -145,7 +146,8 @@ class LowLevelModel(nn.Module):
         depth_feat[1](= normalized_clip_depth_feat): batch x 36 x image_h x image_w
         obj_detection_feat: batch x 36 x image_h x image_w
         num_navigable_feat: batch x 36
-        pre_action_feat(= previous attended action feature): batch x action_feature_size
+        # pre_action_feat(= previous attended action feature): batch x action_feature_size
+        pre_action_feat(= previous attended action feature): batch x (max_navigable + 1)  # 0~35: moving, 36: <STAY>
         weighted_ctx: batch x rnn_hiddin_size
         """
         assert input_type in ['history', 'action']
@@ -157,7 +159,7 @@ class LowLevelModel(nn.Module):
             image_w = 160
             image_h = 120
 
-            self.total_visual_feat = torch.zeros(batch_size, 1, image_h*3, image_w*12, requires_grad=False).to(self.device)
+            self.total_visual_feat = torch.zeros((batch_size, 1, image_h*3, image_w*12), requires_grad=False).to(self.device)
             self.middle_total_feat_1 = torch.zeros((batch_size, 2*36, image_h, image_w), requires_grad=False).to(self.device)
             self.middle_total_feat_2 = torch.zeros((batch_size, 2*36, image_h, image_w), requires_grad=False).to(self.device)
 
