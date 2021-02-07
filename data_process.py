@@ -8,7 +8,7 @@ import numpy as np
 import math
 import pickle
 import cv2
-from obj_detection import setup_obj_detection, _get_obj_detection
+from tasks.R2R.fasterRCNN_w_vg.obj_detection import setup_obj_detection, _get_obj_detection
 import pdb
 import time
 
@@ -87,8 +87,8 @@ def get_obj_detection_datas(scan_types, viewpoint_types):
     # Setup object detector
     fasterRCNN, args, classes, class_indexs, im_data, im_info, num_boxes, gt_boxes = setup_obj_detection()
 
-    scan_types.remove('5q7pvUzZiYa')
-    scan_types.remove('UwV83HsGsw3')
+    # scan_types.remove('5q7pvUzZiYa')
+    # scan_types.remove('UwV83HsGsw3')
     for scan_type in scan_types:
         print('Processing {}/{}'.format(scan_types.index(scan_type)+1, len(scan_types)))
         viewpoint_types_Ids = viewpoint_types[scan_type]
@@ -151,8 +151,9 @@ def get_obj_detection_datas(scan_types, viewpoint_types):
 		            
                     sim.makeAction([0], [1], [0])
     
-            except:
+            except Exception as e:
                print('"{}" in "{}" scanId unavailable'.format(viewpoint_type, scan_type))
+               print(e)
 
 
 def get_depth_and_navigable_datas(scantypes, viewpoint_types):
@@ -227,8 +228,9 @@ def get_depth_and_navigable_datas(scantypes, viewpoint_types):
                 file_name = make_save_path(scan_type, viewpoint_type, index_type, data_type='npz_n_navigable')
                 np.savez_compressed(file_name, navigable=spatial_n_navigable)
                 # import pdb; pdb.set_trace()
-            except:
+            except Exception as e:
                print('"{}" in "{}" scanId unavailable'.format(viewpoint_type, scan_type))
+               print(e)
             
 if __name__ == '__main__':
     scan_types, viewpoint_types = read_data_category()

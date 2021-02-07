@@ -26,7 +26,8 @@ sim.setDiscretizedViewingAngles(True)
 sim.initialize()
 
 # sim.newEpisode(['VzqfbhrpDEA'], ['feae9e692abf42eaa8369c09c7dd97c9'], [0], [0])
-sim.newEpisode(['2azQ1b91cZZ'], ['ac3dc08c7a2646b991fda42ccc42bc47'], [0], [0])
+# sim.newEpisode(['2azQ1b91cZZ'], ['ac3dc08c7a2646b991fda42ccc42bc47'], [0], [0])
+sim.newEpisode(['cV4RVeZvu5T'], ['f401018427494857959e417c8563fd12'], [0], [0])
 # sim.newRandomEpisode(['wc2JMjhGNzB'])
 
 heading = 0
@@ -63,7 +64,7 @@ while True:
 
     depth = np.array(state.depth, copy=False)
     cv2.imshow('Python Depth', depth)
-    import pdb; pdb.set_trace()
+    #import pdb; pdb.set_trace()
     
     img_config = state.scanId + '_' + state.location.viewpointId + '_' + str(state.viewIndex)
     if obj_state == 0:
