@@ -92,7 +92,7 @@ parser.add_argument('--mse_sum', default=1, type=int,
                     help='when using value prediction, use MSE loss with sum or average across non-navigable directions?')
 parser.add_argument('--entropy_weight', default=0.01, type=float,
                     help='weighting for entropy loss')
-parser.add_argument('--rl_weight', default=0.1, type=float,
+parser.add_argument('--rl_weight', default=0.0, type=float,
                     help='weighting for rl loss')
 parser.add_argument('--rl_discount_factor', default=0.95, type=float,
                     help='rl discount factor')
@@ -168,7 +168,7 @@ parser.add_argument('--etc', type=str, help='Anything to comment')
 def main(opts):
 
     # set manual_seed and build vocab
-    opts.max_navigable = 36 # MUST!!
+    # opts.max_navigable = 36 # MUST!!
     setup(opts, opts.seed)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -258,14 +258,14 @@ def main(opts):
     feature['obj_features'] = obj_features
     feature['num_navigable_features'] = num_navigable_features
 
-    # if opts.eval_only or opts.test_submission:
-    #     # Log model parameters and gradients
-    #     wandb.watch(encoder, log='parameter', log_freq=100, idx=0)
-    #     wandb.watch(model, log='parameter', log_freq=100, idx=1)
-    # else:
-    #     # Log model parameters and gradients
-    #     wandb.watch(encoder, log='gradients', log_freq=100)
-    #     wandb.watch(model, log='all', log_freq=100)
+    if opts.eval_only or opts.test_submission:
+        # Log model parameters and gradients
+        wandb.watch(encoder, log='parameter', log_freq=100, idx=0)
+        wandb.watch(model, log='parameter', log_freq=100, idx=1)
+    else:
+        # Log model parameters and gradients
+        wandb.watch(encoder, log='gradients', log_freq=100)
+        wandb.watch(model, log='all', log_freq=100)
 
     if opts.test_submission:
         assert opts.resume, 'The model was not resumed before running for submission.'
@@ -364,17 +364,17 @@ if __name__ == '__main__':
 
     assert opts.model_state in [1, 2, 3], 'Check model_state'
 
-    # # Initialize wandb logger
-    # wandb.init(project='VLN', reinit=True, resume='allow')
-    # if opts.test_submission:
-    #     wandb.run.name = 'hybrid_{}'.format('test')
-    # elif opts.eval_only:
-    #     wandb.run.name = 'hybrid_{}'.format('val_eval')
-    # else:
-    #     wandb.run.name = 'hybrid'
-    # wandb.run.save()
-    # opts.wandbId = wandb.run.id
-    # wandb.run.config.update(opts)
+    # Initialize wandb logger
+    wandb.init(project='VLN', reinit=True, resume='allow')
+    if opts.test_submission:
+        wandb.run.name = 'hybrid_{}'.format('test')
+    elif opts.eval_only:
+        wandb.run.name = 'hybrid_{}'.format('val_eval')
+    else:
+        wandb.run.name = 'hybrid'
+    wandb.run.save()
+    opts.wandbId = wandb.run.id
+    wandb.run.config.update(opts)
     
     # Start main algorithm
     main(opts)

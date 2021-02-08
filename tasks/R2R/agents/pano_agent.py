@@ -63,7 +63,8 @@ class PanoBaseAgent(object):
             # sampling an action from model
             m = D.Categorical(probs)
             action = m.sample()
-            self.rl_data.action_log_probs.append(m.log_prob(action))
+            if self.opts.rl_weight != 0:
+                self.rl_data.action_log_probs.append(m.log_prob(action))
             m_action = action.clone()
         else:
             raise ValueError('Invalid feedback option: {}'.format(self.feedback))
@@ -439,14 +440,15 @@ class PanoSeq2SeqAgent(PanoBaseAgent):
             obs, current_distance = self.env.step(scan_id, next_viewpoints, next_headings)
 
             # Compute reward and probability for RL loss (continuous reward: distance change toward goal / sparse reward: success or not)
-            current_reward = np.array(past_distance) - np.array(current_distance)
-            dist_from_goal = [traj_tmp['distance'][-1] for traj_tmp in traj]
-            success_reward = np.array(np.array(dist_from_goal) < 3.0, dtype=int) * \
-                                np.array(ended, dtype=int) * (1 - np.array(prev_ended, dtype=int))
-            current_reward += success_reward
+            if self.opts.rl_weight != 0:
+                current_reward = np.array(past_distance) - np.array(current_distance)
+                dist_from_goal = [traj_tmp['distance'][-1] for traj_tmp in traj]
+                success_reward = np.array(np.array(dist_from_goal) < 3.0, dtype=int) * \
+                                    np.array(ended, dtype=int) * (1 - np.array(prev_ended, dtype=int))
+                current_reward += success_reward
 
-            self.rl_data.rewards.append(current_reward)
-            past_distance = current_distance
+                self.rl_data.rewards.append(current_reward)
+                past_distance = current_distance
 
             # save trajectory output and update last_recorded
             traj, last_recorded = self.update_traj(obs, traj, img_attn, low_visual_feat, ctx_attn, value, next_viewpoint_idx,
@@ -461,20 +463,20 @@ class PanoSeq2SeqAgent(PanoBaseAgent):
         self.dist_from_goal = [traj_tmp['distance'][-1] for traj_tmp in traj]
 
         # compute RL loss
-        exp_return = 0
-        returns = []
-        rl_losses = []
-        for reward in self.rl_data.rewards[::-1]:
-            exp_return = reward + self.opts.rl_discount_factor * exp_return
-            returns.insert(0, exp_return)
-        for idx, _reward in enumerate(returns):
-            rl_losses.append(torch.tensor(np.array(_reward, dtype=np.float32)) * self.rl_data.action_log_probs[idx])
-        final_rl_loss = -torch.sum(torch.cat([rl_loss.unsqueeze(-1) for rl_loss in rl_losses], dim=1), keepdim=True, dim=1).mean().to(self.device)
-        loss += self.opts.rl_weight * final_rl_loss
+        if self.opts.rl_weight != 0:
+            exp_return = 0
+            returns = []
+            rl_losses = []
+            for reward in self.rl_data.rewards[::-1]:
+                exp_return = reward + self.opts.rl_discount_factor * exp_return
+                returns.insert(0, exp_return)
+            for idx, _reward in enumerate(returns):
+                rl_losses.append(torch.tensor(np.array(_reward, dtype=np.float32)) * self.rl_data.action_log_probs[idx])
+            final_rl_loss = -torch.sum(torch.cat([rl_loss.unsqueeze(-1) for rl_loss in rl_losses], dim=1), keepdim=True, dim=1).mean().to(self.device)
+            loss += self.opts.rl_weight * final_rl_loss
 
-        del self.rl_data.action_log_probs[:]
-        del self.rl_data.rewards[:]
-        pdb.set_trace()
+            del self.rl_data.action_log_probs[:]
+            del self.rl_data.rewards[:]
 
         return loss, traj
 
