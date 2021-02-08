@@ -66,7 +66,7 @@ def load_features(img_feature_store, depth_feature_store, object_feature_store, 
             # image_w = 640
             # image_h = 480
             # vfov = 60
-    
+
     # Load depth features
     # Way to get data in code: depth_features[scanId_viewpointId]
     if model_state in [2, 3]:
@@ -433,7 +433,7 @@ class R2RBatch():
             'rel_heading': state.location.rel_heading,
             'rel_elevation': state.location.rel_elevation,
             # 'index': state.viewIndex
-            'index': 36  # 0~35 correspind to moving, 36 correspond to stop
+            'index': self.opts.max_navigable  # 0~35 correspind to moving, 36 correspond to stop
         }
 
         index_history = []
@@ -514,6 +514,7 @@ class R2RBatch():
 
         if model_input == None:
             obs = []
+            distances_to_goal = []
             for i, state in enumerate(self.env.getStates()):
                 item = self.batch[i]
 
@@ -553,11 +554,13 @@ class R2RBatch():
                     obs[-1]['instr_encoding'] = item['instr_encoding']
                 if 'instr_decoding' in item:
                     obs[-1]['instr_decoding'] = item['instr_decoding']
-            return obs
+                distances_to_goal.append(self.distances[state.scanId][state.location.viewpointId][item['path'][-1]])
+            return obs, distances_to_goal
 
         else:
             instruction_datas = model_input
             obs = []
+            distances_to_goal = []
             for i,(spatial_img_feature, spatial_depth, spatial_obj_detection, spatial_n_navigable, state) in enumerate(self.env.getStates(instruction_datas=instruction_datas)):
                 item = self.batch[i]
 
@@ -605,7 +608,8 @@ class R2RBatch():
                     obs[-1]['instr_encoding'] = item['instr_encoding']
                 if 'instr_decoding' in item:
                     obs[-1]['instr_decoding'] = item['instr_decoding']
-            return obs
+                distances_to_goal.append(self.distances[state.scanId][state.location.viewpointId][item['path'][-1]])
+            return obs, distances_to_goal
 
     def reset(self):
         ''' Load a new minibatch / episodes. '''

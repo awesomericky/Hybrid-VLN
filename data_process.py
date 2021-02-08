@@ -87,8 +87,6 @@ def get_obj_detection_datas(scan_types, viewpoint_types):
     # Setup object detector
     fasterRCNN, args, classes, class_indexs, im_data, im_info, num_boxes, gt_boxes = setup_obj_detection()
 
-    # scan_types.remove('5q7pvUzZiYa')
-    # scan_types.remove('UwV83HsGsw3')
     for scan_type in scan_types:
         print('Processing {}/{}'.format(scan_types.index(scan_type)+1, len(scan_types)))
         viewpoint_types_Ids = viewpoint_types[scan_type]
@@ -234,7 +232,9 @@ def get_depth_and_navigable_datas(scantypes, viewpoint_types):
             
 if __name__ == '__main__':
     scan_types, viewpoint_types = read_data_category()
-    # get_obj_detection_datas(scan_types, viewpoint_types)
+    # scan_types = ['2azQ1b91cZZ']
+    # viewpoint_types = {'2azQ1b91cZZ': ['ac3dc08c7a2646b991fda42ccc42bc47']}
+    get_obj_detection_datas(scan_types, viewpoint_types)
     get_depth_and_navigable_datas(scan_types, viewpoint_types)
 
 

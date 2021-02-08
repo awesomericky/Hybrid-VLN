@@ -90,14 +90,20 @@ parser.add_argument('--norm_value', default=0, type=int,
                     help='when using value prediction, do we normalize the distance improvement as value target?')
 parser.add_argument('--mse_sum', default=1, type=int,
                     help='when using value prediction, use MSE loss with sum or average across non-navigable directions?')
-parser.add_argument('--entropy_weight', default=0.0, type=float,
+parser.add_argument('--entropy_weight', default=0.01, type=float,
                     help='weighting for entropy loss')
+parser.add_argument('--rl_weight', default=0.1, type=float,
+                    help='weighting for rl loss')
+parser.add_argument('--rl_discount_factor', default=0.95, type=float,
+                    help='rl discount factor')
 parser.add_argument('--fix_action_ended', default=1, type=int,
                     help='Action set to 0 if ended. This prevent the model keep getting loss from logit after ended')
 parser.add_argument('--monitor_sigmoid', default=0, type=int,
                     help='Use Sigmoid function for progress monitor instead of Tanh')
 parser.add_argument('--model_state', default=3, type=int,
                     help='[1, 2, 3] available. (1: High, 2: Low, 3: Both)')
+parser.add_argument('--action_embedding', default=0, type=int,
+                    help='Use action embedding instead of one-hot encoding')
 
 # Image context
 parser.add_argument('--img_feat_input_dim', default=2048, type=int,
@@ -155,6 +161,9 @@ parser.add_argument('--log_dir',
 parser.add_argument('--wandbId', type=str, help='Check wandb config')
 parser.add_argument('--wandb_visualize', type=int, default=0, help='visualize middle layer features')
 
+# Etc
+parser.add_argument('--etc', type=str, help='Anything to comment')
+
 
 def main(opts):
 
@@ -195,11 +204,14 @@ def main(opts):
         'img_dropout': opts.img_dropout,
         'img_feat_input_dim': opts.img_feat_input_dim,
         'rnn_hidden_size': opts.rnn_hidden_size,
-        'action_embedding_size': opts.rnn_hidden_size,
         'rnn_dropout': opts.rnn_dropout,
         'max_navigable': opts.max_navigable,
         'max_len': opts.max_cap_length
     }
+    if opts.action_embedding:
+        policy_model_kwargs['action_embedding_size'] = opts.rnn_hidden_size
+    else:
+        policy_model_kwargs['action_embedding_size'] = opts.max_navigable + 1
 
     if opts.arch == 'hybrid':
         # model = HybridAgent(**policy_model_kwargs)
@@ -246,14 +258,15 @@ def main(opts):
     feature['obj_features'] = obj_features
     feature['num_navigable_features'] = num_navigable_features
 
-    if opts.eval_only or opts.test_submission:
-        # Log model parameters and gradients
-        wandb.watch(encoder, log='parameter', log_freq=100, idx=0)
-        wandb.watch(model, log='parameter', log_freq=100, idx=1)
-    else:
-        # Log model parameters and gradients
-        wandb.watch(encoder, log='gradients', log_freq=100)
-        wandb.watch(model, log='all', log_freq=100)
+    # if opts.eval_only or opts.test_submission:
+    #     # Log model parameters and gradients
+    #     wandb.watch(encoder, log='parameter', log_freq=100, idx=0)
+    #     wandb.watch(model, log='parameter', log_freq=100, idx=1)
+    # else:
+    #     # Log model parameters and gradients
+    #     wandb.watch(encoder, log='gradients', log_freq=100)
+    #     wandb.watch(model, log='all', log_freq=100)
+
     if opts.test_submission:
         assert opts.resume, 'The model was not resumed before running for submission.'
         test_env = ('test', (R2RBatch(opts, feature, img_spec, batch_size=opts.batch_size,
@@ -292,7 +305,7 @@ def main(opts):
         'results_path': "",
         'encoder': encoder,
         'model': model,
-        'feedback': opts.feedback
+        'feedback': opts.feedback_training
     }
     agent = PanoSeq2SeqAgent(**agent_kwargs)
 
@@ -351,17 +364,17 @@ if __name__ == '__main__':
 
     assert opts.model_state in [1, 2, 3], 'Check model_state'
 
-    # Initialize wandb logger
-    wandb.init(project='VLN', reinit=True, resume='allow')
-    if opts.test_submission:
-        wandb.run.name = 'hybrid_{}'.format('test')
-    elif opts.eval_only:
-        wandb.run.name = 'hybrid_{}'.format('val_eval')
-    else:
-        wandb.run.name = 'hybrid'
-    wandb.run.save()
-    opts.wandbId = wandb.run.id
-    wandb.run.config.update(opts)
+    # # Initialize wandb logger
+    # wandb.init(project='VLN', reinit=True, resume='allow')
+    # if opts.test_submission:
+    #     wandb.run.name = 'hybrid_{}'.format('test')
+    # elif opts.eval_only:
+    #     wandb.run.name = 'hybrid_{}'.format('val_eval')
+    # else:
+    #     wandb.run.name = 'hybrid'
+    # wandb.run.save()
+    # opts.wandbId = wandb.run.id
+    # wandb.run.config.update(opts)
     
     # Start main algorithm
     main(opts)

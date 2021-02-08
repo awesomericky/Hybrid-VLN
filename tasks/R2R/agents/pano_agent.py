@@ -2,6 +2,7 @@ import json
 import random
 import numpy as np
 import pdb
+import copy
 
 import torch
 import torch.nn as nn
@@ -57,11 +58,13 @@ class PanoBaseAgent(object):
 
         if self.feedback == 'argmax':
             _, action = probs.max(1)  # student forcing - argmax
-            action = action.detach()
+            m_action = action.detach()
         elif self.feedback == 'sample':
             # sampling an action from model
             m = D.Categorical(probs)
             action = m.sample()
+            self.rl_data.action_log_probs.append(m.log_prob(action))
+            m_action = action.clone()
         else:
             raise ValueError('Invalid feedback option: {}'.format(self.feedback))
 
@@ -69,8 +72,8 @@ class PanoBaseAgent(object):
         if fix_action_ended:
             for i, _ended in enumerate(ended):
                 if _ended:
-                    action[i] = self.stop_idx
-
+                    m_action[i] = self.stop_idx
+                    pass
         return action
 
     def _next_viewpoint(self, obs, viewpoints, navigable_index, action, ended, max_navigable):
@@ -91,7 +94,7 @@ class PanoBaseAgent(object):
                 assert ob['viewpoint'] == next_viewpoints[-1]
                 ended[i] = True
             
-            next_headings.append(ob['navigableLocations'][next_viewpoints[i]]['heading'])
+            next_headings.append(ob['navigableLocations'][next_viewpoints[-1]]['heading'])
 
         return next_viewpoints, next_headings, next_viewpoint_idx, ended
 
@@ -204,6 +207,9 @@ class PanoSeq2SeqAgent(PanoBaseAgent):
         self.feedback = feedback
         self.episode_len = episode_len
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+        # Just for saving rl data and gradient path
+        self.rl_data = RL_data()
 
         self.stop_idx = opts.max_navigable
         self.ignore_index = opts.max_navigable + 1  # we define (max_navigable+1) as ignore since 15(navigable) + 1(STOP)
@@ -335,7 +341,7 @@ class PanoSeq2SeqAgent(PanoBaseAgent):
         return traj, last_recorded
 
     def rollout_hybrid(self):
-        obs = np.array(self.env.reset())  # load a mini-batch
+        obs, past_distance = np.array(self.env.reset())  # load a mini-batch
         instructions = []
 
         for ob in obs:
@@ -358,7 +364,7 @@ class PanoSeq2SeqAgent(PanoBaseAgent):
             weighted_ctx, ctx_attn = self.model((h_t, ctx), ctx_mask=ctx_mask, input_type='ctx')
 
             instruction_datas = [instructions, ctx_attn]
-            obs = self.env._get_obs(model_input=instruction_datas)
+            obs, _ = self.env._get_obs(model_input=instruction_datas)
 
             img_feat, depth_feat, obj_detection_feat, num_navigable_feat, \
             viewpoints_indices = super(PanoSeq2SeqAgent, self).pano_navigable_feat(obs, ended)
@@ -390,17 +396,24 @@ class PanoSeq2SeqAgent(PanoBaseAgent):
                 (img_feat, depth_feat, obj_detection_feat, num_navigable_feat,
                 pre_action, h_t, c_t, weighted_ctx, ctx_attn),  navigable_index=navigable_index, ctx_mask=ctx_mask)
 
-            # set other values to -inf so that logsoftmax will not affect the final computed loss
             navigable_mask = torch.cat((navigable_mask, self.stop_idx_mask), dim=1)
-            logit.data.masked_fill_((navigable_mask == 0).data, -float('inf'))
-            current_logit_loss = self.criterion(logit, target)
 
-            # select action based on prediction
-            action = super(PanoSeq2SeqAgent, self)._select_action(logit, ended, fix_action_ended=self.opts.fix_action_ended)
+            # To avoid NaN when multiply prob and logprob, we clone the logit and perform masking
+            logit_for_logprob = logit.clone()
+            logit.data.masked_fill_((navigable_mask == 0).data, -float('inf'))
+            logit_for_logprob.data.masked_fill_((navigable_mask == 0).data, -float('1e7'))
+
+            action_prob = F.softmax(logit, dim=1)
+            action_logprob = F.log_softmax(logit_for_logprob, dim=1)
+            action_logprob = action_logprob * navigable_mask
+
+            # Compute IL loss & Entorpy loss
+            entropy_loss = torch.sum(action_prob * action_logprob, dim=1, keepdim=True).mean()
+            current_logit_loss = self.criterion(logit, target)
 
             if not self.opts.test_submission:
                 if step == 0:
-                    current_loss = current_logit_loss
+                    current_loss = current_logit_loss + self.opts.entropy_weight * entropy_loss
                 else:
                     if self.opts.monitor_sigmoid:
                         current_val_loss = self.get_value_loss_from_start_sigmoid(traj, value, ended)
@@ -408,17 +421,32 @@ class PanoSeq2SeqAgent(PanoBaseAgent):
                         current_val_loss = self.get_value_loss_from_start(traj, value, ended)
 
                     self.value_loss += current_val_loss
-                    current_loss = self.opts.value_loss_weight * current_val_loss + (
-                            1 - self.opts.value_loss_weight) * current_logit_loss
+                    current_loss = self.opts.value_loss_weight * current_val_loss + \
+                                    (1 - self.opts.value_loss_weight) * current_logit_loss + \
+                                    self.opts.entropy_weight * entropy_loss
             else:
                 current_loss = torch.zeros(1)  # during testing where we do not have ground-truth, loss is simply 0
             loss += current_loss
 
+            # select action based on prediction
+            action = super(PanoSeq2SeqAgent, self)._select_action(action_prob, ended, is_prob=True, fix_action_ended=self.opts.fix_action_ended)
+
+            prev_ended = copy.deepcopy(ended)
             next_viewpoints, next_headings, next_viewpoint_idx, ended = super(PanoSeq2SeqAgent, self)._next_viewpoint(
                 obs, viewpoints, navigable_index, action, ended, self.opts.max_navigable)
 
             # make a viewpoint change in the env
-            obs = self.env.step(scan_id, next_viewpoints, next_headings)
+            obs, current_distance = self.env.step(scan_id, next_viewpoints, next_headings)
+
+            # Compute reward and probability for RL loss (continuous reward: distance change toward goal / sparse reward: success or not)
+            current_reward = np.array(past_distance) - np.array(current_distance)
+            dist_from_goal = [traj_tmp['distance'][-1] for traj_tmp in traj]
+            success_reward = np.array(np.array(dist_from_goal) < 3.0, dtype=int) * \
+                                np.array(ended, dtype=int) * (1 - np.array(prev_ended, dtype=int))
+            current_reward += success_reward
+
+            self.rl_data.rewards.append(current_reward)
+            past_distance = current_distance
 
             # save trajectory output and update last_recorded
             traj, last_recorded = self.update_traj(obs, traj, img_attn, low_visual_feat, ctx_attn, value, next_viewpoint_idx,
@@ -432,4 +460,25 @@ class PanoSeq2SeqAgent(PanoBaseAgent):
 
         self.dist_from_goal = [traj_tmp['distance'][-1] for traj_tmp in traj]
 
+        # compute RL loss
+        exp_return = 0
+        returns = []
+        rl_losses = []
+        for reward in self.rl_data.rewards[::-1]:
+            exp_return = reward + self.opts.rl_discount_factor * exp_return
+            returns.insert(0, exp_return)
+        for idx, _reward in enumerate(returns):
+            rl_losses.append(torch.tensor(np.array(_reward, dtype=np.float32)) * self.rl_data.action_log_probs[idx])
+        final_rl_loss = -torch.sum(torch.cat([rl_loss.unsqueeze(-1) for rl_loss in rl_losses], dim=1), keepdim=True, dim=1).mean().to(self.device)
+        loss += self.opts.rl_weight * final_rl_loss
+
+        del self.rl_data.action_log_probs[:]
+        del self.rl_data.rewards[:]
+        pdb.set_trace()
+
         return loss, traj
+
+class RL_data(object):
+    def __init__(self):
+        self.action_log_probs = []
+        self.rewards = []

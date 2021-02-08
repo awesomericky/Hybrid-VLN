@@ -49,8 +49,8 @@ class HighLevelModel(nn.Module):
 
         img_feat: batch x 36 x img_feature_size
         num_navigable_feat: batch x 36
-        # pre_action_feat: previous attended action feature, batch x action_feature_size
-        pre_action_feat(= previous attended action feature): batch x (max_navigable + 1)  # 0~35: moving, 36: <STAY>
+        pre_action_feat(= previous attended action feature): batch x action_feature_size  (if action_embedding==True)
+        pre_action_feat(= previous attended action feature): batch x (max_navigable + 1)  # 0~35: moving, 36: <STAY>  (if action_embedding==False)
         weighted_ctx: batch x rnn_hiddin_size
         navigable_index: list of list
         """
@@ -60,8 +60,8 @@ class HighLevelModel(nn.Module):
             img_feat, num_navigable_feat, pre_action_feat, h_0, c_0, weighted_ctx, navigable_index = model_input
 
             batch_size, _, _ = img_feat.size()
-            num_navigable_attention = F.softmax(num_navigable_feat.float(), dim=1)
-            img_feat = img_feat * num_navigable_attention.unsqueeze(-1).expand_as(img_feat)
+            # num_navigable_attention = F.softmax(num_navigable_feat.float(), dim=1)
+            # img_feat = img_feat * num_navigable_attention.unsqueeze(-1).expand_as(img_feat)
 
             # 0~35: navigable location in corresponding heading / 36: stop
             navigable_mask = create_new_mask(batch_size, self.max_navigable, navigable_index)  # batch_size x self.max_navigable
@@ -146,8 +146,8 @@ class LowLevelModel(nn.Module):
         depth_feat[1](= normalized_clip_depth_feat): batch x 36 x image_h x image_w
         obj_detection_feat: batch x 36 x image_h x image_w
         num_navigable_feat: batch x 36
-        # pre_action_feat(= previous attended action feature): batch x action_feature_size
-        pre_action_feat(= previous attended action feature): batch x (max_navigable + 1)  # 0~35: moving, 36: <STAY>
+        pre_action_feat(= previous attended action feature): batch x action_feature_size  (if action_embedding==True)
+        pre_action_feat(= previous attended action feature): batch x (max_navigable + 1)  # 0~35: moving, 36: <STAY>  (if action_embedding==False)
         weighted_ctx: batch x rnn_hiddin_size
         """
         assert input_type in ['history', 'action']

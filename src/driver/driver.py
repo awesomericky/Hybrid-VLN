@@ -21,13 +21,14 @@ sim = MatterSim.Simulator()
 sim.setCameraResolution(WIDTH, HEIGHT)
 sim.setCameraVFOV(VFOV)
 sim.setRenderingEnabled(True)
-sim.setDepthEnabled(True) # Turn on depth only after running ./scripts/depth_to_skybox.py (see README.md)
+# sim.setDepthEnabled(True) # Turn on depth only after running ./scripts/depth_to_skybox.py (see README.md)
 sim.setDiscretizedViewingAngles(True)
 sim.initialize()
 
 # sim.newEpisode(['VzqfbhrpDEA'], ['feae9e692abf42eaa8369c09c7dd97c9'], [0], [0])
 # sim.newEpisode(['2azQ1b91cZZ'], ['ac3dc08c7a2646b991fda42ccc42bc47'], [0], [0])
-sim.newEpisode(['cV4RVeZvu5T'], ['f401018427494857959e417c8563fd12'], [0], [0])
+sim.newEpisode(['cV4RVeZvu5T'], ['8a730c96a3e543b39f0fc734f3a11b85'], [0], [0])
+# sim.newEpisode(['D7N2EKCX4Sj'], ['21571a0773434c31bee1950f57be3410'], [0], [0])
 # sim.newRandomEpisode(['wc2JMjhGNzB'])
 
 heading = 0
