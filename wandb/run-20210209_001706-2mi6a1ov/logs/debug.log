@@ -1,0 +1,65 @@
+2021-02-09 00:17:06,736 INFO    MainThread:18584 [wandb_setup.py:_flush():70] setting env: {}
+2021-02-09 00:17:06,736 INFO    MainThread:18584 [wandb_setup.py:_flush():70] multiprocessing start_methods=fork,spawn,forkserver
+2021-02-09 00:17:06,736 INFO    MainThread:18584 [wandb_setup.py:_flush():70] setting login settings: {}
+2021-02-09 00:17:06,736 INFO    MainThread:18584 [wandb_init.py:_log_setup():318] Logging user logs to /disk2/yunhokim/Hybrid-VLN/wandb/run-20210209_001706-2mi6a1ov/logs/debug.log
+2021-02-09 00:17:06,736 INFO    MainThread:18584 [wandb_init.py:_log_setup():319] Logging internal logs to /disk2/yunhokim/Hybrid-VLN/wandb/run-20210209_001706-2mi6a1ov/logs/debug-internal.log
+2021-02-09 00:17:08,252 INFO    MainThread:18584 [wandb_run.py:_console_start():1308] atexit reg
+2021-02-09 00:17:08,253 INFO    MainThread:18584 [wandb_run.py:_redirect():1175] redirect: SettingsConsole.REDIRECT
+2021-02-09 00:17:08,255 INFO    MainThread:18584 [wandb_run.py:_redirect():1178] Redirecting console.
+2021-02-09 00:17:08,255 INFO    MainThread:18584 [redirect.py:install():205] install start
+2021-02-09 00:17:08,255 INFO    MainThread:18584 [redirect.py:install():220] install stop
+2021-02-09 00:17:08,255 INFO    MainThread:18584 [redirect.py:install():205] install start
+2021-02-09 00:17:08,255 INFO    MainThread:18584 [redirect.py:install():220] install stop
+2021-02-09 00:17:08,255 INFO    MainThread:18584 [wandb_run.py:_redirect():1222] Redirects installed.
+2021-02-09 00:17:08,266 INFO    MainThread:18584 [wandb_run.py:_config_callback():608] config_cb None None {'exp_name': 'hybrid-agent-32-rl', 'exp_name_secondary': '', 'train_vocab': 'tasks/R2R/data/train_vocab.txt', 'trainval_vocab': 'tasks/R2R/data/trainval_vocab.txt', 'img_feat_dir': 'preprocessed_data/img_features/ResNet-152-imagenet.tsv', 'depth_feat_dir': 'preprocessed_data/depth_result', 'obj_feat_dir': 'preprocessed_data/obj_detection_result', 'num_navigable_feat_dir': 'preprocessed_data/navigable_result', 'start_epoch': 1, 'batch_size': 64, 'learning_rate': 0.0001, 'train_iters_epoch': 200, 'max_num_epochs': 300, 'eval_every_epochs': 5, 'patience': 3, 'min_lr': 1e-06, 'seed': 1, 'train_data_augmentation': 0, 'epochs_data_augmentation': 5, 'arch': 'hybrid', 'max_navigable': 36, 'use_ignore_index': 1, 'follow_gt_traj': 0, 'teleporting': 1, 'max_episode_len': 10, 'feedback_training': 'sample', 'feedback': 'argmax', 'value_loss_weight': 0.5, 'norm_value': 0, 'mse_sum': 1, 'entropy_weight': 0.01, 'rl_weight': 0.1, 'rl_discount_factor': 0.95, 'fix_action_ended': 1, 'monitor_sigmoid': 0, 'model_state': 1, 'action_embedding': 0, 'img_feat_input_dim': 2048, 'img_fc_dim': [1024], 'img_fc_use_batchnorm': 1, 'img_dropout': 0.5, 'mlp_relu': 1, 'img_fc_use_angle': 0, 'remove_punctuation': 1, 'reversed': 0, 'lang_embed': 'lstm', 'word_embedding_size': 256, 'rnn_hidden_size': 512, 'bidirectional': 0, 'rnn_num_layers': 1, 'rnn_dropout': 0.5, 'max_cap_length': 100, 'eval_only': 0, 'test_submission': 0, 'eval_beam': 0, 'progress_inference': 0, 'beam_size': 5, 'results_dir': 'tasks/R2R/results/', 'resume': '', 'checkpoint_dir': 'tasks/R2R/checkpoints/pano-seq2seq/', 'tensorboard': 1, 'log_dir': 'tensorboard_logs/pano-seq2seq', 'wandbId': '2mi6a1ov', 'wandb_visualize': 0, 'etc': 'no_num_navigable'}
+2021-02-09 00:18:15,257 INFO    MainThread:18584 [wandb_watch.py:watch():39] Watching
+2021-02-09 00:18:15,258 INFO    MainThread:18584 [wandb_watch.py:watch():39] Watching
+2021-02-09 00:18:46,411 INFO    MainThread:18584 [wandb_run.py:_atexit_cleanup():1278] got exitcode: 1
+2021-02-09 00:18:46,413 INFO    MainThread:18584 [wandb_run.py:_restore():1250] restore
+2021-02-09 00:18:46,413 INFO    MainThread:18584 [redirect.py:uninstall():224] uninstall start
+2021-02-09 00:18:46,414 INFO    MainThread:18584 [redirect.py:_stop():279] _stop: stdout
+2021-02-09 00:18:46,414 INFO    stdout    :18584 [redirect.py:_pipe_relay():121] relay done saw last write: stdout
+2021-02-09 00:18:46,415 INFO    MainThread:18584 [redirect.py:_stop():285] _stop closed: stdout
+2021-02-09 00:18:46,415 INFO    stdout    :18584 [redirect.py:_pipe_relay():137] relay done done: stdout
+2021-02-09 00:18:46,415 INFO    MainThread:18584 [redirect.py:_stop():291] _stop joined: stdout
+2021-02-09 00:18:46,415 INFO    MainThread:18584 [redirect.py:_stop():293] _stop rd closed: stdout
+2021-02-09 00:18:46,415 INFO    MainThread:18584 [redirect.py:uninstall():228] uninstall done
+2021-02-09 00:18:46,415 INFO    MainThread:18584 [redirect.py:uninstall():224] uninstall start
+2021-02-09 00:18:46,415 INFO    MainThread:18584 [redirect.py:_stop():279] _stop: stderr
+2021-02-09 00:18:46,415 INFO    MainThread:18584 [redirect.py:_stop():285] _stop closed: stderr
+2021-02-09 00:18:46,415 INFO    stderr    :18584 [redirect.py:_pipe_relay():121] relay done saw last write: stderr
+2021-02-09 00:18:46,415 INFO    stderr    :18584 [redirect.py:_pipe_relay():137] relay done done: stderr
+2021-02-09 00:18:46,415 INFO    MainThread:18584 [redirect.py:_stop():291] _stop joined: stderr
+2021-02-09 00:18:46,415 INFO    MainThread:18584 [redirect.py:_stop():293] _stop rd closed: stderr
+2021-02-09 00:18:46,416 INFO    MainThread:18584 [redirect.py:uninstall():228] uninstall done
+2021-02-09 00:18:46,667 INFO    MainThread:18584 [wandb_run.py:_wait_for_finish():1395] got exit ret: uuid: "585c9354f6ce4124848d1e3ae3bfcce0"
+response {
+  poll_exit_response {
+    file_counts {
+      wandb_count: 1
+    }
+    pusher_stats {
+      uploaded_bytes: 1269
+      total_bytes: 1269
+    }
+  }
+}
+
+2021-02-09 00:18:48,670 INFO    MainThread:18584 [wandb_run.py:_wait_for_finish():1395] got exit ret: uuid: "e093430704324b8f9ac31c1bd7df2f9b"
+response {
+  poll_exit_response {
+    done: true
+    exit_result {
+    }
+    file_counts {
+      wandb_count: 5
+    }
+    pusher_stats {
+      uploaded_bytes: 8949
+      total_bytes: 8949
+    }
+  }
+}
+
+2021-02-09 00:18:49,872 INFO    MainThread:18584 [wandb_run.py:_show_files():1614] logging synced files
+2021-02-09 00:18:49,875 INFO    MainThread:18584 [internal.py:handle_exit():139] Internal process exited

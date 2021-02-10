@@ -63,7 +63,7 @@ class PanoBaseAgent(object):
             # sampling an action from model
             m = D.Categorical(probs)
             action = m.sample()
-            if self.opts.rl_weight != 0:
+            if self.opts.rl_weight != 0 and self.feedback is not 'argmax':
                 self.rl_data.action_log_probs.append(m.log_prob(action))
             m_action = action.clone()
         else:

@@ -1,0 +1,72 @@
+wandb: WARNING Calling run.save without any arguments is deprecated.Changes to attributes are automatically persisted.
+Using lstm as encoder ...
+EncoderRNN(
+  (embedding): Embedding(992, 256, padding_idx=0)
+  (drop): Dropout(p=0.5)
+  (rnn): CustomRNN(
+    (cell_0): LSTMCell(256, 512)
+    (dropout_layer): Dropout(p=0)
+  )
+)
+HybridAgent_high(
+  (high_model): HighLevelModel(
+    (proj_navigable_mlp): Sequential(
+      (0): BatchNorm1d(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (1): Linear(in_features=2048, out_features=1024, bias=True)
+      (2): BatchNorm1d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (3): Dropout(p=0.5)
+      (4): ReLU(inplace)
+    )
+    (ctx_t_img_fc): Linear(in_features=512, out_features=1024, bias=True)
+    (soft_attn): SoftAttention(
+      (softmax): Softmax()
+    )
+    (dropout): Dropout(p=0.5)
+    (lstm): LSTMCell(1573, 512)
+    (logit_fc): Linear(in_features=1024, out_features=1024, bias=True)
+  )
+  (h0_t_ctx_fc): Linear(in_features=512, out_features=512, bias=True)
+  (soft_attn): SoftAttention(
+    (softmax): Softmax()
+  )
+  (dropout): Dropout(p=0.5)
+  (lang_position): PositionalEncoding(
+    (dropout): Dropout(p=0.1)
+  )
+  (h2_fc_lstm): Linear(in_features=1536, out_features=512, bias=True)
+  (critic): Sequential(
+    (0): Linear(in_features=612, out_features=1, bias=True)
+    (1): Tanh()
+  )
+)
+Reading image features file preprocessed_data/img_features/ResNet-152-imagenet.tsv
+Loading image features ..
+Reading number of navigable features from preprocessed_data/navigable_result
+Loading number of navigable features ..
+Loading navigation graphs for 61 scans
+R2RBatch loaded with 14039 instructions, using splits: train
+Loading navigation graphs for 56 scans
+R2RBatch loaded with 1021 instructions, using splits: val_seen
+Loading navigation graphs for 11 scans
+R2RBatch loaded with 2349 instructions, using splits: val_unseen
+Training on train env ...
+Traceback (most recent call last):
+  File "tasks/R2R/main.py", line 380, in <module>
+    main(opts)
+  File "tasks/R2R/main.py", line 329, in main
+    trainer.train(epoch, train_env, tb_logger=None)
+  File "/disk2/yunhokim/Hybrid-VLN/tasks/R2R/trainer.py", line 47, in train
+    loss, traj = self.agent.rollout_hybrid()
+  File "/disk2/yunhokim/Hybrid-VLN/tasks/R2R/agents/pano_agent.py", line 398, in rollout_hybrid
+    pre_action, h_t, c_t, weighted_ctx, ctx_attn),  navigable_index=navigable_index, ctx_mask=ctx_mask)
+  File "/home/intern/miniconda3/envs/r2r_v2/lib/python3.6/site-packages/torch/nn/modules/module.py", line 489, in __call__
+    result = self.forward(*input, **kwargs)
+  File "/disk2/yunhokim/Hybrid-VLN/tasks/R2R/models/policy_model_total.py", line 92, in forward
+    = self.high_model((img_feat, num_navigable_feat, pre_action_feat, h_0, c_0, weighted_ctx, navigable_index), input_type='history')
+  File "/home/intern/miniconda3/envs/r2r_v2/lib/python3.6/site-packages/torch/nn/modules/module.py", line 489, in __call__
+    result = self.forward(*input, **kwargs)
+  File "/disk2/yunhokim/Hybrid-VLN/tasks/R2R/models/policy_model_partial.py", line 67, in forward
+    navigable_mask = create_new_mask(batch_size, self.max_navigable, navigable_index)  # batch_size x self.max_navigable
+  File "/disk2/yunhokim/Hybrid-VLN/tasks/R2R/models/modules.py", line 197, in create_new_mask
+    tensor_mask[batch_num, index] = 1
+IndexError: index 38 is out of bounds for dimension 0 with size 36
