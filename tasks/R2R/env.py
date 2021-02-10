@@ -15,6 +15,7 @@ from os import listdir
 import pickle
 import torch
 from scipy.special import softmax
+import pdb
 
 from utils import load_datasets, load_nav_graphs, print_progress
 
@@ -22,7 +23,7 @@ csv.field_size_limit(sys.maxsize)
 
 PREPROCESSED_DATA_FOLDER = 'preprocessed_data'
 SAFE_DEPTH_THRESHOLD = 5*4000
-INSTRUCTION_ATTENTION_THRESHOLD = 5
+INSTRUCTION_ATTENTION_THRESHOLD = 10
 
 
 def load_features(img_feature_store, depth_feature_store, object_feature_store, num_navigable_feature_store, max_navigable, model_state):
@@ -50,6 +51,8 @@ def load_features(img_feature_store, depth_feature_store, object_feature_store, 
                 total_length = len(reader)
 
                 print('Loading image features ..')
+                if max_navigable == 72:
+                    print('feature will be expanded to match {} num_max_navigable'.format(max_navigable))
                 for i, item in enumerate(reader):
                     # image_h = int(item['image_h'])
                     # image_w = int(item['image_w'])
@@ -57,8 +60,20 @@ def load_features(img_feature_store, depth_feature_store, object_feature_store, 
                     long_id = _make_id(item['scanId'], item['viewpointId'])
                     img_features[long_id] = np.frombuffer(base64.b64decode(item['features']),
                                                         dtype=np.float32).reshape((36, 2048))
-                    # print_progress(i + 1, total_length, prefix='Progress:',
-                    #                suffix='Complete', bar_length=50)
+                    if max_navigable == 72:
+                        interpolated_features = np.zeros((72, 2048), dtype=np.float32)
+                        for i in range(36):
+                            interpolated_features[2*i, :] = img_features[long_id][i, :]
+                        for i in range(12):
+                            if i == 11:
+                                interpolated_features[2*i+1, :] = (img_features[long_id][i, :] + img_features[long_id][i-11, :]) / 2.0
+                                interpolated_features[2*i+1+24*1, :] = (img_features[long_id][i+12*1, :] + img_features[long_id][i-11+12*1, :]) / 2.0
+                                interpolated_features[2*i+1+24*2, :] = (img_features[long_id][i+12*2, :] + img_features[long_id][i-11+12*2, :]) / 2.0
+                            else:
+                                interpolated_features[2*i+1, :] = (img_features[long_id][i, :] + img_features[long_id][i+1, :]) / 2.0
+                                interpolated_features[2*i+1+24*1, :] = (img_features[long_id][i+12*1, :] + img_features[long_id][i+1+12*1, :]) / 2.0
+                                interpolated_features[2*i+1+24*2, :] = (img_features[long_id][i+12*2, :] + img_features[long_id][i+1+12*2, :]) / 2.0
+                        img_features[long_id] = interpolated_features  # (72, 2048)
         else:
             raise ValueError('Image features not provided')
             # print('Image features not provided')
@@ -228,9 +243,10 @@ class EnvBatch():
                 instruction_attn_values = instruction_attn_values.detach().cpu().numpy()
                 instruction_attn_indices = instruction_attn_indices.detach().cpu().numpy()
                 attn_words = []
-                for instruction_attn_indice in instruction_attn_indices:
-                    attn_words.append(instruction[instruction_attn_indice])
 
+                for instruction_attn_indice in instruction_attn_indices:
+                    if instruction_attn_indice < len(instruction):
+                        attn_words.append(instruction[instruction_attn_indice])
                 for i in range(36):
                     object_detection_result = self.features['obj_features'][long_id + '_' + str(i)]
                     
@@ -469,9 +485,16 @@ class R2RBatch():
             elevation_level = max(min(2, elevation_level), 0)
 
             # viewpoint index depends on the elevation as well
-            horizontal_idx = int(round(target_heading / (math.pi / 6.0)))  # current: -15(=345)~15, 15~45 ...
-            horizontal_idx = 0 if horizontal_idx == 12 else horizontal_idx
-            viewpoint_idx = int(horizontal_idx + 12 * elevation_level)
+            if self.opts.max_navigable == 36:
+                horizontal_idx = int(round(target_heading / (math.pi / 6.0)))  # current: -15(=345)~15, 15~45 ...
+                horizontal_idx = 0 if horizontal_idx == 12 else horizontal_idx
+                viewpoint_idx = int(horizontal_idx + 12 * elevation_level)
+            elif self.opts.max_navigable == 72:
+                horizontal_idx = int(round(target_heading / (math.pi / 12.0)))  # current: 0~15, 15~30, ...# 0~23, 24~47, 48~71
+                horizontal_idx = 0 if horizontal_idx == 24 else horizontal_idx
+                viewpoint_idx = int(horizontal_idx + 24 * elevation_level)
+            else:
+                raise ValueError('Unavailable opts.max_navigable')
 
             # To check whether multiple navigable locations correspond to same index
             # if viewpoint_idx in index_history:
