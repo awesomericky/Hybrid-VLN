@@ -5,5 +5,5 @@
 </div>
 
 <div>
-  <img width=300 src='image/HybridVLN_algo.png'>
+  <img width=450 src='image/HybridVLN_algo.png'>
 </div>
